@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
+import { Logo } from "@/components/ui/logo";
 
 export function ShopHeader() {
   return (
@@ -10,9 +11,10 @@ export function ShopHeader() {
       <Container as="div" className="flex h-16 items-center justify-between gap-4">
         <Link
           href="/"
-          className="font-heading text-xl font-semibold tracking-tight text-primary shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+          className="flex items-center gap-3 font-heading text-xl font-semibold tracking-tight text-primary shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
           aria-label="ShopSmart — Home"
         >
+          <Logo size={36} />
           ShopSmart
         </Link>
 
