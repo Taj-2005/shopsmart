@@ -7,24 +7,24 @@ import { Container } from "@/components/layout/container";
 export function Hero() {
   return (
     <section
-      className="relative overflow-hidden bg-[var(--background)] py-20 sm:py-28 lg:py-36"
+      className="relative overflow-hidden bg-surface py-20 sm:py-28 lg:py-36"
       aria-labelledby="hero-heading"
     >
       <Container as="div">
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
             id="hero-heading"
-            className="font-heading text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl"
+            className="font-heading text-4xl font-bold tracking-tight text-primary sm:text-5xl lg:text-6xl"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
             Smart shopping.
             <br />
-            <span className="text-[var(--muted)]">Trusted choices.</span>
+            <span className="text-muted-foreground">Trusted choices.</span>
           </motion.h1>
           <motion.p
-            className="mt-6 text-lg text-[var(--muted)] sm:text-xl"
+            className="mt-6 text-lg text-muted-foreground sm:text-xl"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
@@ -40,13 +40,13 @@ export function Hero() {
           >
             <Link
               href="/shop"
-              className="inline-flex h-14 min-w-[180px] items-center justify-center rounded-[var(--radius)] bg-[var(--primary)] px-8 text-lg font-medium text-[var(--primary-foreground)] transition-colors hover:bg-stone-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="inline-flex h-14 min-w-[180px] items-center justify-center rounded-[var(--radius)] bg-accent px-8 text-lg font-medium text-on-accent transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
             >
               Start Shopping
             </Link>
             <Link
               href="/#categories"
-              className="inline-flex h-14 items-center justify-center rounded-[var(--radius)] border-2 border-[var(--border)] bg-transparent px-8 text-lg font-medium transition-colors hover:border-stone-400 hover:bg-stone-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="inline-flex h-14 items-center justify-center rounded-[var(--radius)] border-2 border-border bg-surface px-8 text-lg font-medium text-primary transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
             >
               Explore Categories
             </Link>

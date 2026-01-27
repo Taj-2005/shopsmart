@@ -32,9 +32,9 @@ export function ProductCard({
     >
       <Link
         href={`/shop?p=${id}`}
-        className="block rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] overflow-hidden transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="block rounded-[var(--radius-lg)] border border-border bg-surface overflow-hidden transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
       >
-        <div className="relative aspect-square overflow-hidden bg-[var(--accent)]">
+        <div className="relative aspect-square overflow-hidden bg-muted">
           <Image
             src={image}
             alt={alt}
@@ -45,14 +45,14 @@ export function ProductCard({
         </div>
         <div className="p-4">
           {category ? (
-            <p className="text-xs font-medium uppercase tracking-wider text-[var(--muted)]">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {category}
             </p>
           ) : null}
-          <h3 className="mt-1 font-heading font-semibold text-[var(--foreground)] line-clamp-2">
+          <h3 className="mt-1 font-heading font-semibold text-primary line-clamp-2">
             {name}
           </h3>
-          <p className="mt-2 text-sm font-medium text-[var(--foreground)]">
+          <p className="mt-2 text-sm font-medium text-primary">
             {price}
           </p>
         </div>

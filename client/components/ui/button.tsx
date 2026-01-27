@@ -9,12 +9,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-stone-800 active:bg-stone-900",
+    "bg-accent text-on-accent hover:bg-accent/90 active:bg-accent/80 focus-visible:ring-accent",
   secondary:
-    "bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-stone-200 active:bg-stone-300",
-  ghost: "hover:bg-stone-100 active:bg-stone-200",
+    "bg-muted text-primary hover:bg-muted/80 active:bg-muted/70 focus-visible:ring-accent",
+  ghost:
+    "text-primary hover:bg-muted active:bg-muted/80 focus-visible:ring-accent",
   outline:
-    "border-2 border-[var(--border)] bg-transparent hover:border-stone-400 hover:bg-stone-50",
+    "border-2 border-border bg-surface text-primary hover:bg-muted focus-visible:ring-accent",
 };
 
 const sizeClasses = {

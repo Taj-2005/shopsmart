@@ -4,13 +4,13 @@ import { Container } from "@/components/layout/container";
 export function ShopHeader() {
   return (
     <header
-      className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--background)]/80"
+      className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80"
       role="banner"
     >
       <Container as="div" className="flex h-16 items-center justify-between gap-4">
         <Link
           href="/"
-          className="font-heading text-xl font-semibold tracking-tight text-[var(--foreground)] shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="font-heading text-xl font-semibold tracking-tight text-primary shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
           aria-label="ShopSmart — Home"
         >
           ShopSmart
@@ -19,25 +19,25 @@ export function ShopHeader() {
         <nav aria-label="Shop navigation" className="hidden sm:flex items-center gap-6">
           <Link
             href="/shop"
-            className="text-sm font-medium text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="text-sm font-medium text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
           >
             All
           </Link>
           <Link
             href="/shop?cat=electronics"
-            className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
           >
             Electronics
           </Link>
           <Link
             href="/shop?cat=fashion"
-            className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
           >
             Fashion
           </Link>
           <Link
             href="/shop?cat=home"
-            className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
           >
             Home
           </Link>
@@ -46,7 +46,7 @@ export function ShopHeader() {
         <div className="flex items-center gap-2 shrink-0" role="toolbar" aria-label="Account and cart actions">
           <Link
             href="/shop#wishlist"
-            className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] text-[var(--muted)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:bg-muted hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
             aria-label="Wishlist"
           >
             <svg
@@ -66,7 +66,7 @@ export function ShopHeader() {
           </Link>
           <Link
             href="/shop#cart"
-            className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] text-[var(--muted)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:bg-muted hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
             aria-label="Cart (0 items)"
           >
             <svg
@@ -88,7 +88,7 @@ export function ShopHeader() {
           </Link>
           <Link
             href="/shop#profile"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--accent)] text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
             aria-label="Profile"
           >
             <span className="text-sm font-medium" aria-hidden>U</span>

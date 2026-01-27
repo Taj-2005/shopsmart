@@ -26,17 +26,17 @@ export function FeaturesSection() {
   return (
     <Section
       id="features"
-      className="bg-[var(--card)]"
+      className="bg-surface"
       aria-labelledby="features-heading"
     >
       <div className="text-center">
         <h2
           id="features-heading"
-          className="font-heading text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl"
+          className="font-heading text-3xl font-bold tracking-tight text-primary sm:text-4xl"
         >
           Why ShopSmart
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
+        <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
           Shipping, returns, quality, and trust — all built in.
         </p>
       </div>
@@ -48,12 +48,12 @@ export function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.4, delay: i * 0.08 }}
-            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] p-6"
+            className="rounded-[var(--radius)] border border-border bg-muted p-6"
           >
-            <h3 className="font-heading font-semibold text-[var(--foreground)]">
+            <h3 className="font-heading font-semibold text-primary">
               {f.title}
             </h3>
-            <p className="mt-2 text-sm text-[var(--muted)]">{f.description}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{f.description}</p>
           </motion.li>
         ))}
       </ul>

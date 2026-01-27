@@ -10,7 +10,7 @@ const footerLinks = {
   help: [
     { label: "Shipping & Returns", href: "/#features" },
     { label: "FAQs", href: "/#features" },
-    { label: "Contact Us", href: "/#contact" },
+    { label: "Contact Us", href: "/#features" },
   ],
   company: [
     { label: "About Us", href: "/#mission" },
@@ -21,23 +21,23 @@ const footerLinks = {
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--card)]">
+    <footer className="border-t border-border bg-surface">
       <Container as="div" className="py-16">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Link
               href="/"
-              className="font-heading text-lg font-semibold text-[var(--foreground)]"
+              className="font-heading text-lg font-semibold text-primary"
               aria-label="ShopSmart — Home"
             >
               ShopSmart
             </Link>
-            <p className="mt-3 max-w-xs text-sm text-[var(--muted)]">
+            <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               Smart shopping. Trusted choices. Built for how you live.
             </p>
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Shop
             </h3>
             <ul className="mt-4 space-y-2">
@@ -45,7 +45,7 @@ export function LandingFooter() {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="text-sm text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="text-sm text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
                   >
                     {label}
                   </Link>
@@ -54,7 +54,7 @@ export function LandingFooter() {
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Help
             </h3>
             <ul className="mt-4 space-y-2">
@@ -62,7 +62,7 @@ export function LandingFooter() {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="text-sm text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="text-sm text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
                   >
                     {label}
                   </Link>
@@ -71,7 +71,7 @@ export function LandingFooter() {
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Company
             </h3>
             <ul className="mt-4 space-y-2">
@@ -79,7 +79,7 @@ export function LandingFooter() {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="text-sm text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="text-sm text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
                   >
                     {label}
                   </Link>
@@ -88,7 +88,7 @@ export function LandingFooter() {
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t border-[var(--border)] pt-8 text-center text-sm text-[var(--muted)]">
+        <div className="mt-12 border-t border-border pt-8 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} ShopSmart. All rights reserved.</p>
         </div>
       </Container>

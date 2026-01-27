@@ -33,16 +33,17 @@ export function CategoriesSection() {
   return (
     <Section
       id="categories"
+      className="bg-muted"
       aria-labelledby="categories-heading"
     >
       <div className="text-center">
         <h2
           id="categories-heading"
-          className="font-heading text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl"
+          className="font-heading text-3xl font-bold tracking-tight text-primary sm:text-4xl"
         >
           Shop by category
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
+        <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
           Find what you need across thoughtfully organised categories.
         </p>
       </div>
@@ -57,7 +58,7 @@ export function CategoriesSection() {
           >
             <Link
               href={cat.href}
-              className="group block overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="group block overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface transition-shadow hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
             >
               <div className="relative aspect-[3/2] overflow-hidden">
                 <Image
@@ -67,8 +68,8 @@ export function CategoriesSection() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-[var(--foreground)]/20" />
-                <span className="absolute bottom-4 left-4 font-heading text-lg font-semibold text-white drop-shadow-md">
+                <div className="absolute inset-0 bg-primary/50" />
+                <span className="absolute bottom-4 left-4 font-heading text-lg font-semibold text-on-primary drop-shadow-md">
                   {cat.name}
                 </span>
               </div>

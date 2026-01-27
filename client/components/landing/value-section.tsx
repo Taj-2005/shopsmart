@@ -25,7 +25,7 @@ export function ValueSection() {
   return (
     <Section
       id="value"
-      className="bg-[var(--card)]"
+      className="bg-surface"
       aria-labelledby="value-heading"
     >
       <h2
@@ -38,16 +38,16 @@ export function ValueSection() {
         {values.map((item, i) => (
           <motion.article
             key={item.title}
-            className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-8"
+            className="rounded-[var(--radius-lg)] border border-border bg-muted p-8"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.4, delay: i * 0.1 }}
           >
-            <h3 className="font-heading text-lg font-semibold text-[var(--foreground)]">
+            <h3 className="font-heading text-lg font-semibold text-primary">
               {item.title}
             </h3>
-            <p className="mt-2 text-[var(--muted)]">{item.description}</p>
+            <p className="mt-2 text-muted-foreground">{item.description}</p>
           </motion.article>
         ))}
       </div>

@@ -12,7 +12,7 @@ const testimonials = [
   },
   {
     quote:
-      "Finally, an eCommerce site that doesn’t overwhelm. Clean, trustworthy, and easy to use.",
+      "Finally, an eCommerce site that doesn't overwhelm. Clean, trustworthy, and easy to use.",
     author: "Rahul K.",
     role: "First-time buyer",
   },
@@ -26,15 +26,15 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <Section aria-labelledby="testimonials-heading">
+    <Section id="testimonials" className="bg-muted" aria-labelledby="testimonials-heading">
       <div className="text-center">
         <h2
           id="testimonials-heading"
-          className="font-heading text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl"
+          className="font-heading text-3xl font-bold tracking-tight text-primary sm:text-4xl"
         >
           What people say
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
+        <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
           Real feedback from shoppers who chose ShopSmart.
         </p>
       </div>
@@ -46,14 +46,14 @@ export function TestimonialsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.4, delay: i * 0.1 }}
-            className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-8"
+            className="rounded-[var(--radius-lg)] border border-border bg-surface p-8"
           >
-            <blockquote className="text-[var(--foreground)]">
+            <blockquote className="text-primary">
               <p className="text-lg leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
               <footer className="mt-4">
                 <cite className="not-italic">
                   <span className="font-semibold">{t.author}</span>
-                  <span className="text-[var(--muted)]"> — {t.role}</span>
+                  <span className="text-muted-foreground"> — {t.role}</span>
                 </cite>
               </footer>
             </blockquote>

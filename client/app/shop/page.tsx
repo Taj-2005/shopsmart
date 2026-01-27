@@ -12,13 +12,14 @@ export default function ShopPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
+      className="bg-muted min-h-screen"
     >
       <Container as="div" className="py-8 lg:py-12">
         <div className="mb-8">
-          <h1 className="font-heading text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-primary sm:text-4xl">
             Shop
           </h1>
-          <p className="mt-2 text-[var(--muted)]">
+          <p className="mt-2 text-muted-foreground">
             Discover quality products across categories.
           </p>
         </div>
