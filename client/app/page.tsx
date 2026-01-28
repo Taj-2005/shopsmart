@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <>
       <LandingHeader />
-      <main id="main-content">
+      <main id="main-content" className="min-w-0 overflow-x-hidden">
         <Hero />
         <ValueSection />
         <CategoriesSection />

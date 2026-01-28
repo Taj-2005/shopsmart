@@ -7,14 +7,14 @@ import { Container } from "@/components/layout/container";
 export function Hero() {
   return (
     <section
-      className="relative overflow-hidden bg-surface py-20 sm:py-28 lg:py-36"
+      className="relative min-w-0 overflow-hidden bg-surface py-12 sm:py-28 lg:py-36"
       aria-labelledby="hero-heading"
     >
       <Container as="div">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-3xl min-w-0 text-center">
           <motion.h1
             id="hero-heading"
-            className="font-heading text-4xl font-bold tracking-tight text-primary sm:text-5xl lg:text-6xl"
+            className="font-heading text-3xl font-bold tracking-tight text-primary sm:text-4xl lg:text-5xl xl:text-6xl"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
@@ -33,20 +33,20 @@ export function Hero() {
             scale, designed for you.
           </motion.p>
           <motion.div
-            className="mt-10 flex flex-wrap items-center justify-center gap-4"
+            className="mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           >
             <Link
               href="/home"
-              className="inline-flex h-14 min-w-[180px] items-center justify-center rounded-[var(--radius)] bg-accent px-8 text-lg font-medium text-on-accent transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+              className="inline-flex min-h-[44px] min-w-[44px] flex-1 basis-0 items-center justify-center rounded-[var(--radius)] bg-accent px-6 py-3 text-base font-medium text-on-accent transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent sm:min-h-14 sm:flex-none sm:basis-auto sm:px-8 sm:text-lg"
             >
               Start Shopping
             </Link>
             <Link
               href="/#categories"
-              className="inline-flex h-14 items-center justify-center rounded-[var(--radius)] border-2 border-border bg-surface px-8 text-lg font-medium text-primary transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+              className="inline-flex min-h-[44px] min-w-[44px] flex-1 basis-0 items-center justify-center rounded-[var(--radius)] border-2 border-border bg-surface px-6 py-3 text-base font-medium text-primary transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent sm:min-h-14 sm:flex-none sm:basis-auto sm:px-8 sm:text-lg"
             >
               Explore Categories
             </Link>

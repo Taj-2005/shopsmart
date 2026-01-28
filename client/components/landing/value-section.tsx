@@ -34,7 +34,7 @@ export function ValueSection() {
       >
         Why choose ShopSmart
       </h2>
-      <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid min-w-0 gap-8 sm:gap-12 sm:grid-cols-2 lg:grid-cols-3">
         {values.map((item, i) => (
           <motion.article
             key={item.title}

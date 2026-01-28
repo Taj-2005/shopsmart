@@ -13,7 +13,7 @@ export default function HomeLayout({
   return (
     <>
       <ShopHeader />
-      <main id="main-content">{children}</main>
+      <main id="main-content" className="min-w-0 overflow-x-hidden">{children}</main>
     </>
   );
 }

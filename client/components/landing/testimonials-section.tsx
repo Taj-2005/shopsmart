@@ -38,7 +38,7 @@ export function TestimonialsSection() {
           Real feedback from shoppers who chose ShopSmart.
         </p>
       </div>
-      <ul className="mt-12 grid gap-8 sm:grid-cols-3" role="list">
+      <ul className="mt-12 grid min-w-0 grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-3" role="list">
         {testimonials.map((t, i) => (
           <motion.li
             key={t.author}

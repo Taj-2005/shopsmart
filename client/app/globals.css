@@ -108,9 +108,9 @@ body {
 
 .marquee-track {
   display: inline-flex;
-  animation: marquee-scroll 55s linear infinite;
   width: max-content;
   min-width: max-content;
+  animation: marquee-scroll 55s linear infinite;
 }
 
 .marquee-set {
@@ -119,13 +119,32 @@ body {
 }
 
 .marquee-wrap:hover .marquee-track,
-.marquee-wrap:focus-within .marquee-track {
+.marquee-wrap:focus-within .marquee-track,
+.marquee-wrap.marquee-paused .marquee-track {
   animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
+  }
+}
+
+/*
+ * Mobile auto-scroll: on touch/coarse-pointer devices, carousel must auto-slide
+ * even when prefers-reduced-motion is set. Restore full animation so it runs
+ * reliably on phones (per product requirement: do not disable on touch devices).
+ */
+@media (prefers-reduced-motion: reduce) and (pointer: coarse) {
+  .marquee-wrap .marquee-track {
+    animation: marquee-scroll 55s linear infinite !important;
+    animation-duration: 55s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .marquee-wrap:hover .marquee-track,
+  .marquee-wrap:focus-within .marquee-track,
+  .marquee-wrap.marquee-paused .marquee-track {
+    animation-play-state: paused;
   }
 }
 

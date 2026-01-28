@@ -47,7 +47,7 @@ export function CategoriesSection() {
           Find what you need across thoughtfully organised categories.
         </p>
       </div>
-      <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-12 grid min-w-0 grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((cat, i) => (
           <motion.div
             key={cat.name}

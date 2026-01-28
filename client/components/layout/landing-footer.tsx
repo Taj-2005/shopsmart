@@ -23,7 +23,7 @@ export function LandingFooter() {
   return (
     <footer className="border-t border-border bg-surface">
       <Container as="div" className="py-16">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid min-w-0 grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-12 lg:grid-cols-4">
           <div>
             <Link
               href="/"
@@ -32,7 +32,7 @@ export function LandingFooter() {
             >
               ShopSmart
             </Link>
-            <p className="mt-3 max-w-xs text-sm text-muted-foreground">
+            <p className="mt-3 max-w-xs min-w-0 text-sm text-muted-foreground">
               Smart shopping. Trusted choices. Built for how you live.
             </p>
           </div>

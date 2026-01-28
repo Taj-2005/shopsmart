@@ -35,7 +35,7 @@ export function DealsSection() {
           </Link>
         </div>
         <ul
-          className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3"
+          className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
           role="list"
         >
           {products.map((p, i) => (

@@ -40,7 +40,7 @@ export function FeaturesSection() {
           Shipping, returns, quality, and trust — all built in.
         </p>
       </div>
-      <ul className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4" role="list">
+      <ul className="mt-12 grid min-w-0 grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4" role="list">
         {features.map((f, i) => (
           <motion.li
             key={f.title}

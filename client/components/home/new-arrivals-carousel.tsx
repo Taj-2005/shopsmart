@@ -1,13 +1,37 @@
 "use client";
 
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ProductCard } from "@/components/shop/product-card";
 import { Container } from "@/components/layout/container";
 import type { Product } from "@/data/products";
 import { getNewArrivals } from "@/data/products";
 
+const RESUME_DELAY_MS = 3000;
+
 export function NewArrivalsCarousel() {
   const products = getNewArrivals(8);
+  const [paused, setPaused] = useState(false);
+  const resumeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleResume = useCallback(() => {
+    if (resumeRef.current) clearTimeout(resumeRef.current);
+    resumeRef.current = setTimeout(() => {
+      setPaused(false);
+      resumeRef.current = null;
+    }, RESUME_DELAY_MS);
+  }, []);
+
+  const handleInteractionStart = useCallback(() => {
+    setPaused(true);
+    scheduleResume();
+  }, [scheduleResume]);
+
+  useEffect(() => {
+    return () => {
+      if (resumeRef.current) clearTimeout(resumeRef.current);
+    };
+  }, []);
 
   const renderSet = (offset: number) =>
     products.map((p: Product, i: number) => (
@@ -16,7 +40,7 @@ export function NewArrivalsCarousel() {
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, delay: i * 0.05 }}
-        className="shrink-0 w-[280px] sm:w-[300px]"
+        className="shrink-0 w-[min(72vw,260px)] sm:w-[300px]"
       >
         <ProductCard product={p} index={i} variant="compact" />
       </motion.div>
@@ -38,8 +62,10 @@ export function NewArrivalsCarousel() {
         </div>
       </Container>
       <div
-        className="marquee-wrap overflow-hidden px-4 sm:px-6 lg:px-8 select-none"
-        aria-label="New arrivals carousel — scrolls continuously; pauses on hover"
+        className={`marquee-wrap overflow-hidden px-4 sm:px-6 lg:px-8 select-none ${paused ? "marquee-paused" : ""}`}
+        aria-label="New arrivals carousel — scrolls continuously; pauses on interaction"
+        onTouchStart={handleInteractionStart}
+        onPointerDown={handleInteractionStart}
       >
         <div className="marquee-track inline-flex gap-6 pb-4">
           <div className="marquee-set flex shrink-0 gap-6">{renderSet(0)}</div>
