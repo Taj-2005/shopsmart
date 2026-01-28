@@ -11,31 +11,34 @@ export function TrendingGrid() {
 
   return (
     <section
-      className="py-12 sm:py-16 bg-surface"
+      className="py-16 sm:py-20 lg:py-24 bg-surface"
       aria-labelledby="trending-heading"
     >
       <Container as="div">
-        <div className="mb-8 flex items-end justify-between gap-4">
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
+            <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Community favourites
+            </p>
             <h2
               id="trending-heading"
-              className="font-heading text-2xl font-bold tracking-tight text-primary sm:text-3xl"
+              className="font-heading text-2xl font-bold tracking-tight text-primary sm:text-3xl lg:text-4xl"
             >
               Trending now
             </h2>
-            <p className="mt-1 text-muted-foreground">
-              Popular picks across categories.
+            <p className="mt-1.5 text-muted-foreground sm:max-w-sm">
+              Popular picks across categories. High ratings, real reviews.
             </p>
           </div>
           <Link
             href="/shop"
-            className="shrink-0 text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+            className="shrink-0 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
           >
             Shop all →
           </Link>
         </div>
         <ul
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4"
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4"
           role="list"
         >
           {products.map((p, i) => (
