@@ -39,7 +39,7 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           >
             <Link
-              href="/shop"
+              href="/home"
               className="inline-flex h-14 min-w-[180px] items-center justify-center rounded-[var(--radius)] bg-accent px-8 text-lg font-medium text-on-accent transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
             >
               Start Shopping

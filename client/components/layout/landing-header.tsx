@@ -33,12 +33,12 @@ export function LandingHeader() {
               </Link>
             </li>
             <li>
-              <Link
-                href="/shop"
-                className="inline-flex h-10 items-center justify-center rounded-[var(--radius)] bg-accent px-4 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-              >
-                Start Shopping
-              </Link>
+            <Link
+              href="/home"
+              className="inline-flex h-10 items-center justify-center rounded-[var(--radius)] bg-accent px-4 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+            >
+              Start Shopping
+            </Link>
             </li>
           </ul>
         </nav>
