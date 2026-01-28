@@ -1,30 +1,22 @@
 @import "tailwindcss";
 
-/* ---------------------------------------------------------------------------
-   ShopSmart Official Color System — non-negotiable, production-grade
-   Deep Charcoal · Cognitive Teal · Cloud White · UI Gray
-   80% neutral · 15% Deep Charcoal · 5% Cognitive Teal (accent only)
-   --------------------------------------------------------------------------- */
-
 :root {
-  /* Official palette — define once, reuse via semantic tokens */
-  --color-charcoal: #222222;   /* Deep Charcoal — primary text, headings, never #000 */
-  --color-teal: #00C2B2;       /* Cognitive Teal — primary accent, CTAs, active, focus */
-  --color-white: #FFFFFF;      /* Cloud White — main backgrounds, cards */
-  --color-ui-gray: #F5F7FA;    /* UI Gray — section separation, secondary containers */
+  --color-charcoal: #222222;
+  --color-teal: #00C2B2;
+  --color-white: #FFFFFF;
+  --color-ui-gray: #F5F7FA;
 
-  /* Semantic tokens — used in theme and components */
   --text-primary: var(--color-charcoal);
-  --text-muted: rgb(34 34 34 / 0.65);   /* Deep Charcoal 65% — secondary text, WCAG safe */
+  --text-muted: rgb(34 34 34 / 0.65);
   --bg-surface: var(--color-white);
   --bg-muted: var(--color-ui-gray);
   --accent-primary: var(--color-teal);
-  --on-accent: var(--color-white);      /* Text on Cognitive Teal — Cloud White */
-  --on-primary: var(--color-white);    /* Text on Deep Charcoal (dark sections) */
-  --border-default: rgb(34 34 34 / 0.12); /* Deep Charcoal 12% — borders */
-  --ring-focus: var(--color-teal);       /* Focus states use accent */
+  --on-accent: var(--color-white);
+  --on-primary: var(--color-white);
+  --border-default: rgb(34 34 34 / 0.12);
+  --ring-focus: var(--color-teal);
+  --color-error: #b91c1c;
 
-  /* Layout tokens */
   --radius: 0.75rem;
   --radius-sm: 0.5rem;
   --radius-lg: 1rem;
@@ -33,7 +25,6 @@
 }
 
 @theme inline {
-  /* Tailwind semantic colors — no hardcoded hex in components */
   --color-primary: var(--text-primary);
   --color-muted-foreground: var(--text-muted);
   --color-surface: var(--bg-surface);
@@ -107,5 +98,51 @@ body {
   button, a, [role="button"] {
     min-height: 44px;
     min-width: 44px;
+  }
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: inline-flex;
+  animation: marquee-scroll 55s linear infinite;
+  width: max-content;
+  min-width: max-content;
+}
+
+.marquee-set {
+  min-width: max-content;
+  flex-shrink: 0;
+}
+
+.marquee-wrap:hover .marquee-track,
+.marquee-wrap:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+@keyframes input-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.input-shake {
+  animation: input-shake 0.4s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input-shake {
+    animation: none;
   }
 }

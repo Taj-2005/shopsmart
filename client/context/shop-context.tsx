@@ -9,10 +9,8 @@ import {
   type ReactNode,
 } from "react";
 
-/** Cart: productId -> quantity */
 export type CartState = Record<string, number>;
 
-/** Wishlist: product ids */
 export type WishlistState = Set<string>;
 
 type ShopContextValue = {

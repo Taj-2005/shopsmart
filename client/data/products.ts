@@ -1,8 +1,3 @@
-/**
- * Static product data — frontend only, no API.
- * Used for Home, Shop, filtering, and sorting.
- */
-
 export type Product = {
   id: string;
   name: string;

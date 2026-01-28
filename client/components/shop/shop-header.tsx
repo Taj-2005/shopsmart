@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { Logo } from "@/components/ui/logo";
 import { useShop } from "@/context/shop-context";
-import { CartDrawer } from "./cart-drawer";
-import { WishlistDrawer } from "./wishlist-drawer";
 
 function HeartIcon({ filled }: { filled: boolean }) {
   return (
@@ -53,104 +50,98 @@ export function ShopHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/home";
   const isShop = pathname?.startsWith("/shop");
+  const isCart = pathname === "/cart";
+  const isWishlist = pathname === "/wishlist";
   const { cartCount, wishlistCount } = useShop();
-  const [cartOpen, setCartOpen] = useState(false);
-  const [wishlistOpen, setWishlistOpen] = useState(false);
 
   return (
-    <>
-      <header
-        className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80"
-        role="banner"
-      >
-        <Container as="div" className="flex h-16 items-center justify-between gap-4">
+    <header
+      className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80"
+      role="banner"
+    >
+      <Container as="div" className="flex h-16 items-center justify-between gap-4">
+        <Link
+          href="/"
+          className="flex items-center gap-3 font-heading text-xl font-semibold tracking-tight text-primary shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+          aria-label="ShopSmart — Home"
+        >
+          <Logo size={36} />
+          ShopSmart
+        </Link>
+
+        <nav aria-label="Shop navigation" className="hidden sm:flex items-center gap-6">
           <Link
-            href="/"
-            className="flex items-center gap-3 font-heading text-xl font-semibold tracking-tight text-primary shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-            aria-label="ShopSmart — Home"
+            href="/home"
+            className={`text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${isHome ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
           >
-            <Logo size={36} />
-            ShopSmart
+            Home
           </Link>
+          <Link
+            href="/shop"
+            className={`text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${isShop ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+          >
+            Shop
+          </Link>
+          <Link
+            href="/shop?cat=electronics"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+          >
+            Electronics
+          </Link>
+          <Link
+            href="/shop?cat=fashion"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+          >
+            Fashion
+          </Link>
+          <Link
+            href="/shop?cat=home"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+          >
+            Home & Living
+          </Link>
+          <Link
+            href="/shop?cat=sports"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+          >
+            Sports
+          </Link>
+        </nav>
 
-          <nav aria-label="Shop navigation" className="hidden sm:flex items-center gap-6">
-            <Link
-              href="/home"
-              className={`text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${isHome ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
-            >
-              Home
-            </Link>
-            <Link
-              href="/shop"
-              className={`text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${isShop ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
-            >
-              Shop
-            </Link>
-            <Link
-              href="/shop?cat=electronics"
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-            >
-              Electronics
-            </Link>
-            <Link
-              href="/shop?cat=fashion"
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-            >
-              Fashion
-            </Link>
-            <Link
-              href="/shop?cat=home"
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-            >
-              Home & Living
-            </Link>
-            <Link
-              href="/shop?cat=sports"
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-            >
-              Sports
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-2 shrink-0" role="toolbar" aria-label="Account and cart actions">
-            <button
-              type="button"
-              onClick={() => setWishlistOpen(true)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:bg-muted hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-              aria-label={`Wishlist${wishlistCount > 0 ? ` (${wishlistCount} items)` : ""}`}
-            >
-              <HeartIcon filled={wishlistCount > 0} />
-              {wishlistCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-on-accent">
-                  {wishlistCount > 99 ? "99+" : wishlistCount}
-                </span>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:bg-muted hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-              aria-label={`Cart${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
-            >
-              <CartIcon />
-              {cartCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-on-accent">
-                  {cartCount > 99 ? "99+" : cartCount}
-                </span>
-              )}
-            </button>
-            <Link
-              href="/shop#profile"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-              aria-label="Profile"
-            >
-              <span className="text-sm font-medium" aria-hidden>U</span>
-            </Link>
-          </div>
-        </Container>
-      </header>
-      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-      <WishlistDrawer isOpen={wishlistOpen} onClose={() => setWishlistOpen(false)} />
-    </>
+        <div className="flex items-center gap-2 shrink-0" role="toolbar" aria-label="Account and cart actions">
+          <Link
+            href="/wishlist"
+            className={`relative flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${isWishlist ? "text-accent bg-accent/10" : "text-muted-foreground hover:bg-muted hover:text-primary"}`}
+            aria-label={`Wishlist${wishlistCount > 0 ? ` (${wishlistCount} items)` : ""}`}
+          >
+            <HeartIcon filled={wishlistCount > 0 || isWishlist} />
+            {wishlistCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-on-accent">
+                {wishlistCount > 99 ? "99+" : wishlistCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/cart"
+            className={`relative flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${isCart ? "text-accent bg-accent/10" : "text-muted-foreground hover:bg-muted hover:text-primary"}`}
+            aria-label={`Cart${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
+          >
+            <CartIcon />
+            {cartCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-on-accent">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/login"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+            aria-label="Log in"
+          >
+            <span className="text-sm font-medium" aria-hidden>U</span>
+          </Link>
+        </div>
+      </Container>
+    </header>
   );
 }

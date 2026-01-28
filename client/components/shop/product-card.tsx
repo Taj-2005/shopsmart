@@ -10,7 +10,7 @@ import { useShop } from "@/context/shop-context";
 interface ProductCardProps {
   product: Product;
   index?: number;
-  variant?: "default" | "compact";
+  variant?: "default" | "compact" | "wishlist";
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -58,11 +58,61 @@ function HeartIcon({ filled }: { filled: boolean }) {
   );
 }
 
+function QuantityStepper({
+  quantity,
+  onIncrease,
+  onDecrease,
+  min = 1,
+}: {
+  quantity: number;
+  onIncrease: () => void;
+  onDecrease: () => void;
+  min?: number;
+}) {
+  return (
+    <div className="inline-flex items-center rounded-[var(--radius-sm)] border border-border bg-surface">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onDecrease();
+        }}
+        disabled={quantity <= min}
+        className="flex h-9 w-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+        aria-label="Decrease quantity"
+      >
+        −
+      </button>
+      <span
+        className="flex h-9 min-w-[2rem] items-center justify-center text-sm font-medium text-primary"
+        aria-live="polite"
+      >
+        {quantity}
+      </span>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onIncrease();
+        }}
+        className="flex h-9 w-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+        aria-label="Increase quantity"
+      >
+        +
+      </button>
+    </div>
+  );
+}
+
 export function ProductCard({ product, index = 0, variant = "default" }: ProductCardProps) {
   const { current, original } = getFormattedPrice(product);
   const isCompact = variant === "compact";
-  const { cart, addToCart, toggleWishlist, isInWishlist } = useShop();
-  const inCart = (cart[product.id] ?? 0) > 0;
+  const isWishlistView = variant === "wishlist";
+  const { cart, addToCart, updateQuantity, toggleWishlist, isInWishlist, moveToCart } = useShop();
+  const qty = cart[product.id] ?? 0;
+  const inCart = qty > 0;
   const inWishlist = isInWishlist(product.id);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
@@ -145,21 +195,59 @@ export function ProductCard({ product, index = 0, variant = "default" }: Product
               </span>
             )}
           </div>
-          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-            <motion.button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={!product.inStock}
-              animate={inCart ? { scale: [1, 1.02, 1] } : {}}
-              transition={{ duration: 0.2 }}
-              className={`w-full rounded-[var(--radius-sm)] py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50 ${
-                inCart
-                  ? "border border-accent bg-accent/10 text-accent"
-                  : "bg-accent text-on-accent hover:bg-accent/90"
-              }`}
-            >
-              {inCart ? "Added ✓" : "Add to cart"}
-            </motion.button>
+          <div className="mt-3 space-y-2" onClick={(e) => e.stopPropagation()}>
+            {isWishlistView && (
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleWishlist(product.id);
+                  }}
+                  className="text-sm text-muted-foreground hover:text-primary underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+                >
+                  Remove from wishlist
+                </button>
+                {inCart ? (
+                  <QuantityStepper
+                    quantity={qty}
+                    onIncrease={() => updateQuantity(product.id, qty + 1)}
+                    onDecrease={() => updateQuantity(product.id, qty - 1)}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (product.inStock) moveToCart(product.id);
+                    }}
+                    disabled={!product.inStock}
+                    className="rounded-[var(--radius-sm)] bg-accent px-3 py-2 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Move to Cart
+                  </button>
+                )}
+              </div>
+            )}
+            {!isWishlistView &&
+              (inCart ? (
+                <QuantityStepper
+                  quantity={qty}
+                  onIncrease={() => updateQuantity(product.id, qty + 1)}
+                  onDecrease={() => updateQuantity(product.id, qty - 1)}
+                />
+              ) : (
+                <motion.button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={!product.inStock}
+                  className="w-full rounded-[var(--radius-sm)] py-2 text-sm font-medium bg-accent text-on-accent transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Add to cart
+                </motion.button>
+              ))}
           </div>
         </div>
       </Link>

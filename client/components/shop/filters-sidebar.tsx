@@ -34,7 +34,6 @@ const RATING_OPTIONS: { value: RatingFilter; label: string }[] = [
 interface FiltersSidebarProps {
   filters: ShopFilters;
   onFiltersChange: (f: ShopFilters) => void;
-  /** When true, render inline for mobile (e.g. inside a collapsible) */
   inline?: boolean;
 }
 

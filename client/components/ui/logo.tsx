@@ -1,36 +1,31 @@
-/**
- * ShopSmart logo — teal circle with white "S".
- * Based on the CSS Generation Request design; uses brand Cognitive Teal (#00C2B2).
- */
 interface LogoProps {
   size?: number;
   className?: string;
 }
 
+const LOGO_BASE_SIZE = 300;
+
 export function Logo({ size = 32, className = "" }: LogoProps) {
-  const s = size / 300; // scale from original 300px design
+  const s = size / LOGO_BASE_SIZE;
   return (
     <span
       className={`relative inline-flex shrink-0 items-center justify-center ${className}`}
       style={{ width: size, height: size }}
       aria-hidden
     >
-      {/* Teal circle background */}
       <span
         className="absolute inset-0 rounded-full"
         style={{ backgroundColor: "var(--accent-primary, #00C2B2)" }}
       />
-      {/* White S shape */}
       <span
         className="absolute flex items-center justify-center"
         style={{
           width: 140 * s,
           height: 200 * s,
-          left: (300 - 140) * s * 0.5,
-          top: (300 - 200) * s * 0.5,
+          left: (LOGO_BASE_SIZE - 140) * s * 0.5,
+          top: (LOGO_BASE_SIZE - 200) * s * 0.5,
         }}
       >
-        {/* Top curve of S */}
         <span
           className="absolute rounded-full bg-white"
           style={{
@@ -50,7 +45,6 @@ export function Logo({ size = 32, className = "" }: LogoProps) {
             backgroundColor: "var(--accent-primary, #00C2B2)",
           }}
         />
-        {/* Middle connector */}
         <span
           className="absolute rounded-lg bg-white"
           style={{
@@ -62,7 +56,6 @@ export function Logo({ size = 32, className = "" }: LogoProps) {
             borderRadius: 25 * s,
           }}
         />
-        {/* Bottom curve of S */}
         <span
           className="absolute rounded-full bg-white"
           style={{
