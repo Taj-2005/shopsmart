@@ -10,23 +10,26 @@ export function HomeHero() {
       className="relative min-w-0 overflow-hidden bg-white py-16 sm:py-20 lg:py-28"
       aria-labelledby="home-hero-heading"
     >
-      {/* Subtle gradient + pattern for depth */}
+      {/* Background layer: full-width gradient + pattern, anchored behind content */}
       <div
-        className="pointer-events-none absolute inset-0  opacity-[0.4]"
+        className="pointer-events-none absolute inset-0 z-0"
         aria-hidden
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 70% 40%, var(--color-teal) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(34,34,34,0.06) 0%, transparent 50%)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-30"
-        aria-hidden
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23222222' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H0v40zM40 40V0L0 40h40z'/%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      />
-      <Container as="div" className="relative">
+      >
+        <div
+          className="absolute left-0 top-0 h-full w-full opacity-[0.4]"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 60% at 50% 40%, var(--color-teal) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 50% 85%, rgba(34,34,34,0.06) 0%, transparent 50%)",
+          }}
+        />
+        <div
+          className="absolute left-0 top-0 h-full w-full opacity-30"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23222222' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H0v40zM40 40V0L0 40h40z'/%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
+      </div>
+      <Container as="div" className="relative z-10">
         <div className="mx-auto max-w-2xl text-center">
           <motion.p
             className="text-sm font-medium uppercase tracking-[0.2em] text-accent"
