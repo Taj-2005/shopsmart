@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+:root {
+  --color-charcoal: #222222;
+  --color-teal: #00C2B2;
+  --color-white: #FFFFFF;
+  --color-ui-gray: #F5F7FA;
+
+  --text-primary: var(--color-charcoal);
+  --text-muted: rgb(34 34 34 / 0.65);
+  --bg-surface: var(--color-white);
+  --bg-muted: var(--color-ui-gray);
+  --accent-primary: var(--color-teal);
+  --on-accent: var(--color-white);
+  --on-primary: var(--color-white);
+  --border-default: rgb(34 34 34 / 0.12);
+  --ring-focus: var(--color-teal);
+  --color-error: #b91c1c;
+
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1rem;
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-outfit), var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-primary: var(--text-primary);
+  --color-muted-foreground: var(--text-muted);
+  --color-surface: var(--bg-surface);
+  --color-muted: var(--bg-muted);
+  --color-accent: var(--accent-primary);
+  --color-on-accent: var(--on-accent);
+  --color-on-primary: var(--on-primary);
+  --color-border: var(--border-default);
+  --color-ring: var(--ring-focus);
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-outfit), var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 100;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.75rem 1rem;
+  background: var(--accent-primary);
+  color: var(--on-accent);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  overflow: visible;
+}
+
+@media (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: inline-flex;
+  width: max-content;
+  min-width: max-content;
+  animation: marquee-scroll 55s linear infinite;
+}
+
+.marquee-set {
+  min-width: max-content;
+  flex-shrink: 0;
+}
+
+.marquee-wrap:hover .marquee-track,
+.marquee-wrap:focus-within .marquee-track,
+.marquee-wrap.marquee-paused .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/*
+ * Mobile auto-scroll: on touch/coarse-pointer devices, carousel must auto-slide
+ * even when prefers-reduced-motion is set. Restore full animation so it runs
+ * reliably on phones (per product requirement: do not disable on touch devices).
+ */
+@media (prefers-reduced-motion: reduce) and (pointer: coarse) {
+  .marquee-wrap .marquee-track {
+    animation: marquee-scroll 55s linear infinite !important;
+    animation-duration: 55s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .marquee-wrap:hover .marquee-track,
+  .marquee-wrap:focus-within .marquee-track,
+  .marquee-wrap.marquee-paused .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes input-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.input-shake {
+  animation: input-shake 0.4s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input-shake {
+    animation: none;
+  }
+}
