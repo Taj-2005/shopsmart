@@ -1,0 +1,32 @@
+name: lab-actions
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name of the lab'
+        required: true
+        default: 'lab1'
+      city:
+        description: 'City where the lab is located'
+        required: true
+        default: 'New York'
+      country:
+        description: 'Country where the lab is located'
+        required: true
+        default: 'USA'
+
+jobs: 
+  hello-world:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print lab information
+        run: |
+          echo "Lab Name: ${{ github.event.inputs.name }}"
+          echo "City: ${{ github.event.inputs.city }}"
+          echo "Country: ${{ github.event.inputs.country }}"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: List files in the repository
+        run: ls -la
