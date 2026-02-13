@@ -30,3 +30,12 @@ jobs:
         uses: actions/checkout@v4
       - name: List files in the repository
         run: ls -la
+  weather:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get weather information
+        run: |
+          echo "Fetching weather information for ${{ github.event.inputs.city }}, ${{ github.event.inputs.country }}..."
+          # Here you can add a command to fetch weather information using an API or a CLI tool
+          echo "Weather information for ${{ github.event.inputs.city }}, ${{ github.event.inputs.country }}: Sunny, 25°C"
