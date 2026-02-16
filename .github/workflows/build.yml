@@ -21,8 +21,8 @@ jobs:
 
       - name: Install dependencies in server folder
         run: npm install
-        working-directory: server
+        working-directory: shopsmart/server
 
       - name: Build server
         run: npm run build
-        working-directory: server
+        working-directory: shopsmart/server
