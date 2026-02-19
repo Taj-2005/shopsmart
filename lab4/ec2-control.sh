@@ -1,6 +1,8 @@
 #!/bin/bash
 
-INSTANCE_ID="i-06b43824c754cfe4d"
+INSTANCE_ID="i-xxxxxxxxxxxxxxxxx"
+
+
 ACTION=$1
 
 if [[ "$ACTION" == "start" ]]; then

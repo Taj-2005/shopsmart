@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTANCE_ID="i-06b43824c754cfe4d"
+INSTANCE_ID="i-xxxxxxxxxxxxxxxxx"
 ACTION=$1
 
 CURRENT_STATE=$(aws ec2 describe-instances \
