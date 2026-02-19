@@ -1,0 +1,72 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Logo } from "@/components/ui/logo";
+import { useAuth } from "@/context/auth-context";
+
+const NAV = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/products", label: "Products" },
+  { href: "/admin/orders", label: "Orders" },
+  { href: "/admin/users", label: "Users" },
+  { href: "/admin/reviews", label: "Reviews" },
+  { href: "/admin/settings", label: "Settings" },
+];
+
+export function AdminSidebar() {
+  const pathname = usePathname();
+  const { user, logout } = useAuth();
+
+  return (
+    <aside
+      className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-border bg-surface"
+      aria-label="Admin navigation"
+    >
+      <div className="flex h-14 items-center gap-2 border-b border-border px-4">
+        <Logo size={28} />
+        <span className="font-heading font-semibold text-primary">Admin</span>
+      </div>
+      <nav className="flex-1 overflow-y-auto p-3">
+        <ul className="space-y-0.5">
+          {NAV.map(({ href, label }) => {
+            const active = pathname === href || (href !== "/admin" && pathname?.startsWith(href));
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={`block rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${
+                    active
+                      ? "bg-accent/10 text-accent"
+                      : "text-muted-foreground hover:bg-muted hover:text-primary"
+                  }`}
+                >
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+      <div className="border-t border-border p-3">
+        <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+        <p className="truncate text-xs font-medium text-primary">{user?.fullName}</p>
+        <div className="mt-2 flex gap-2">
+          <Link
+            href="/home"
+            className="text-xs font-medium text-accent hover:underline"
+          >
+            Store
+          </Link>
+          <button
+            type="button"
+            onClick={() => logout()}
+            className="text-xs font-medium text-muted-foreground hover:text-primary"
+          >
+            Log out
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}

@@ -1,3 +1,10 @@
+export function validateFullName(value: string): { valid: boolean; message: string } {
+  const trimmed = value.trim();
+  if (!trimmed) return { valid: false, message: "Full name is required" };
+  if (trimmed.length < 2) return { valid: false, message: "Full name must be at least 2 characters" };
+  return { valid: true, message: "" };
+}
+
 export function validateEmail(value: string): { valid: boolean; message: string } {
   const trimmed = value.trim();
   if (!trimmed) return { valid: false, message: "Email is required" };

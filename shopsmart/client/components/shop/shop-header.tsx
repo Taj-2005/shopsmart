@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { Logo } from "@/components/ui/logo";
 import { useShop } from "@/context/shop-context";
+import { useAuth } from "@/context/auth-context";
 
 function HeartIcon({ filled }: { filled: boolean }) {
   return (
@@ -53,6 +54,8 @@ export function ShopHeader() {
   const isCart = pathname === "/cart";
   const isWishlist = pathname === "/wishlist";
   const { cartCount, wishlistCount } = useShop();
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
   return (
     <header
@@ -106,6 +109,30 @@ export function ShopHeader() {
           >
             Sports
           </Link>
+          {isAuthenticated && (
+            <>
+              <Link
+                href="/profile"
+                className={`text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${pathname === "/profile" ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+              >
+                Profile
+              </Link>
+              <Link
+                href="/orders"
+                className={`text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${pathname === "/orders" ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+              >
+                Orders
+              </Link>
+            </>
+          )}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="text-sm font-semibold text-accent hover:underline transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+            >
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2 shrink-0" role="toolbar" aria-label="Account and cart actions">
@@ -133,13 +160,25 @@ export function ShopHeader() {
               </span>
             )}
           </Link>
-          <Link
-            href="/login"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-            aria-label="Log in"
-          >
-            <span className="text-sm font-medium" aria-hidden>U</span>
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href="/profile"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-accent/20 font-medium text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+              aria-label="Profile"
+            >
+              <span className="text-sm" aria-hidden>
+                {user?.fullName?.charAt(0) ?? "U"}
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+              aria-label="Log in"
+            >
+              <span className="text-sm font-medium" aria-hidden>U</span>
+            </Link>
+          )}
         </div>
       </Container>
     </header>

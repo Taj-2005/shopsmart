@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -59,7 +60,9 @@ export default function CartPage() {
     const p = getProductById(id);
     return sum + (p ? p.price * qty : 0);
   }, 0);
-  const discount = 0;
+  const [coupon, setCoupon] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
+  const discount = couponApplied ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal - discount;
 
   return (
@@ -152,19 +155,37 @@ export default function CartPage() {
                 <h2 className="font-heading text-lg font-semibold text-primary">
                   Order summary
                 </h2>
-                <div className="mt-4 space-y-2 text-sm">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(subtotal)}</span>
+                <div className="mt-4 space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Coupon code"
+                      value={coupon}
+                      onChange={(e) => setCoupon(e.target.value)}
+                      className="min-w-0 flex-1 rounded-[var(--radius-sm)] border border-border bg-surface px-3 py-2 text-sm text-primary placeholder:text-muted-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setCouponApplied((a) => !a)}
+                      className="shrink-0 rounded-[var(--radius-sm)] border border-border bg-surface px-3 py-2 text-sm font-medium text-primary hover:bg-muted focus-visible:outline focus-visible:ring-accent"
+                    >
+                      {couponApplied ? "Remove" : "Apply"}
+                    </button>
                   </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Discount</span>
-                    <span>{discount > 0 ? `−${formatPrice(discount)}` : "—"}</span>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Subtotal</span>
+                      <span>{formatPrice(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Discount</span>
+                      <span>{discount > 0 ? `−${formatPrice(discount)}` : "—"}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between border-t border-border pt-3 font-semibold text-primary">
-                    <span>Total</span>
-                    <span>{formatPrice(total)}</span>
-                  </div>
+                </div>
+                <div className="flex justify-between border-t border-border pt-3 font-semibold text-primary">
+                  <span>Total</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
                 <button
                   type="button"
