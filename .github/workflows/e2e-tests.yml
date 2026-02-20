@@ -75,7 +75,7 @@ jobs:
         run: |
           (cd shopsmart/server && npm run start) &
           sleep 3
-          (cd shopsmart/client && npm run start) &
+          (cd shopsmart/client && PORT=3000 npm run start) &
           sleep 10
           cd shopsmart/e2e && BASE_URL=http://localhost:3000 API_URL=${{ vars.NEXT_PUBLIC_API_URL}} npm run e2e
         timeout-minutes: 5
