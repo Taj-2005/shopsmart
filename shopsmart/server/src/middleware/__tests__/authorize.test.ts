@@ -1,4 +1,4 @@
-import { Response, NextFunction } from "express";
+import { Response } from "express";
 import { authorize } from "../authorize";
 import type { AuthRequest } from "../authenticate";
 import { AppError } from "../errorHandler";

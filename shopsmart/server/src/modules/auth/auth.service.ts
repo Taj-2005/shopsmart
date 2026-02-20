@@ -72,7 +72,7 @@ export async function register(data: {
   };
 }
 
-export async function login(data: { email: string; password: string }, ip?: string) {
+export async function login(data: { email: string; password: string }, _ip?: string) {
   const email = data.email.toLowerCase().trim();
   const user = await prisma.user.findFirst({
     where: { email, deletedAt: null },
