@@ -74,6 +74,39 @@ async function main() {
   });
 
   const customerHash = await bcrypt.hash("Customer1!", SALT_ROUNDS);
+  await prisma.user.upsert({
+    where: { email: "customer@shopsmart.com" },
+    update: {},
+    create: {
+      email: "customer@shopsmart.com",
+      passwordHash: customerHash,
+      fullName: "Test Customer",
+      roleId: customerRole.id,
+      emailVerified: true,
+    },
+  });
+  await prisma.user.upsert({
+    where: { email: "admin@shopsmart.com" },
+    update: {},
+    create: {
+      email: "admin@shopsmart.com",
+      passwordHash: hash,
+      fullName: "Test Admin",
+      roleId: adminRole.id,
+      emailVerified: true,
+    },
+  });
+  await prisma.user.upsert({
+    where: { email: "super_admin@shopsmart.com" },
+    update: {},
+    create: {
+      email: "super_admin@shopsmart.com",
+      passwordHash: hash,
+      fullName: "Test Super Admin",
+      roleId: superAdminRole.id,
+      emailVerified: true,
+    },
+  });
   const users: { id: string }[] = [superAdmin, adminUser];
   for (let i = 1; i <= 48; i++) {
     const u = await prisma.user.upsert({

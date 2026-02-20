@@ -1,0 +1,191 @@
+{
+  "/api/health": {
+    "get": {
+      "tags": ["Health"],
+      "summary": "Health check",
+      "description": "Returns a simple message confirming the API is running. No authentication required.",
+      "responses": {
+        "200": {
+          "description": "API is healthy",
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "properties": { "success": { "type": "boolean" }, "message": { "type": "string" } } },
+              "example": { "success": true, "message": "ShopSmart API" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/auth/register": {
+    "post": {
+      "tags": ["Auth"],
+      "summary": "Register a new user",
+      "description": "Creates a new customer account. Returns access token and user; refresh token is set in cookie.",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/RegisterBody" },
+            "example": { "email": "newuser@example.com", "password": "SecurePass1!", "fullName": "New User" }
+          }
+        }
+      },
+      "responses": {
+        "201": { "description": "User created", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": {}, "accessToken": {}, "expiresIn": {}, "user": { "$ref": "#/components/schemas/User" } } } } } },
+        "400": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+        "409": { "description": "Email already exists", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+      }
+    }
+  },
+  "/api/auth/login": {
+    "post": {
+      "tags": ["Auth"],
+      "summary": "Login",
+      "description": "Authenticates with email and password. Returns access token and user.",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/LoginBody" },
+            "example": { "email": "user@example.com", "password": "SecurePass1!" }
+          }
+        }
+      },
+      "responses": {
+        "200": { "description": "Login successful", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": {}, "accessToken": {}, "expiresIn": {}, "user": { "$ref": "#/components/schemas/User" } } } } } },
+        "401": { "description": "Invalid credentials", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+        "423": { "description": "Account locked", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+      }
+    }
+  },
+  "/api/auth/refresh": {
+    "post": {
+      "tags": ["Auth"],
+      "summary": "Refresh access token",
+      "description": "Exchanges refresh token (cookie or body) for new access token.",
+      "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RefreshBody" } } } },
+      "responses": {
+        "200": { "description": "New tokens issued" },
+        "400": { "description": "Refresh token required", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+        "401": { "description": "Invalid or expired refresh token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+      }
+    }
+  },
+  "/api/auth/logout": {
+    "post": {
+      "tags": ["Auth"],
+      "summary": "Logout",
+      "description": "Invalidates refresh token and clears cookie.",
+      "responses": { "200": { "description": "Logged out", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": {}, "message": {} } } } } } }
+    }
+  },
+  "/api/auth/me": {
+    "get": {
+      "tags": ["Auth"],
+      "summary": "Get current user",
+      "description": "Returns the authenticated user. Requires Bearer token.",
+      "security": [{"bearerAuth": []}],
+      "responses": {
+        "200": { "description": "Current user", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": {}, "user": { "$ref": "#/components/schemas/User" } } } } } },
+        "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+      }
+    }
+  },
+  "/api/categories": {
+    "get": {
+      "tags": ["Categories"],
+      "summary": "List categories",
+      "description": "Returns all categories. No auth required.",
+      "responses": { "200": { "description": "List of categories", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": {}, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Category" } } } } } } } }
+    },
+    "post": {
+      "tags": ["Categories"],
+      "summary": "Create category",
+      "description": "Create category. Admin only.",
+      "security": [{"bearerAuth": []}],
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateCategoryBody" } } } },
+      "responses": { "201": { "description": "Created" }, "400": { "description": "Validation error" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } }
+    }
+  },
+  "/api/products": {
+    "get": {
+      "tags": ["Products"],
+      "summary": "List products",
+      "description": "Returns active products. No auth required.",
+      "responses": { "200": { "description": "List of products", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": {}, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Product" } } } } } } } }
+    },
+    "post": {
+      "tags": ["Products"],
+      "summary": "Create product",
+      "description": "Create product. Admin only.",
+      "security": [{"bearerAuth": []}],
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateProductBody" } } } },
+      "responses": { "201": { "description": "Created" }, "400": { "description": "Validation error" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } }
+    }
+  },
+  "/api/cart": {
+    "get": {
+      "tags": ["Cart"],
+      "summary": "Get my cart",
+      "description": "Returns the authenticated user's cart. Requires Bearer token.",
+      "security": [{"bearerAuth": []}],
+      "responses": { "200": { "description": "Cart" }, "401": { "description": "Unauthorized" } }
+    },
+    "post": {
+      "tags": ["Cart"],
+      "summary": "Add to cart",
+      "description": "Adds a product to the cart. Requires Bearer token.",
+      "security": [{"bearerAuth": []}],
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AddCartBody" } } } },
+      "responses": { "201": { "description": "Cart updated" }, "400": { "description": "productId required" }, "401": { "description": "Unauthorized" } }
+    }
+  },
+  "/api/orders": {
+    "get": {
+      "tags": ["Orders"],
+      "summary": "List my orders",
+      "description": "Returns the authenticated user's orders. Requires Bearer token.",
+      "security": [{"bearerAuth": []}],
+      "responses": { "200": { "description": "List of orders" }, "401": { "description": "Unauthorized" } }
+    },
+    "post": {
+      "tags": ["Orders"],
+      "summary": "Create order",
+      "description": "Creates an order from items. Requires Bearer token.",
+      "security": [{"bearerAuth": []}],
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateOrderBody" } } } },
+      "responses": { "201": { "description": "Order created" }, "400": { "description": "Validation error" }, "401": { "description": "Unauthorized" } }
+    }
+  },
+  "/api/admin/dashboard": {
+    "get": {
+      "tags": ["Admin"],
+      "summary": "Dashboard stats",
+      "description": "Returns users, products, orders, revenue. Admin only.",
+      "security": [{"bearerAuth": []}],
+      "responses": { "200": { "description": "Dashboard data" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } }
+    }
+  },
+  "/api/auth/verify-email": { "post": { "tags": ["Auth"], "summary": "Verify email", "description": "Verify user email with token.", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VerifyEmailBody" } } } }, "responses": { "200": { "description": "Email verified" }, "400": { "description": "Invalid token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } } } },
+  "/api/auth/forgot-password": { "post": { "tags": ["Auth"], "summary": "Forgot password", "description": "Send password reset email.", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ForgotPasswordBody" } } } }, "responses": { "200": { "description": "Reset email sent" }, "400": { "description": "Bad request", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } } } },
+  "/api/auth/reset-password": { "post": { "tags": ["Auth"], "summary": "Reset password", "description": "Set new password with token from reset email.", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResetPasswordBody" } } } }, "responses": { "200": { "description": "Password reset" }, "400": { "description": "Invalid token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } } } },
+  "/api/users": { "get": { "tags": ["Users"], "summary": "List users", "description": "List all users. Admin only.", "security": [{"bearerAuth": []}], "responses": { "200": { "description": "List of users" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } } } },
+  "/api/users/{id}": { "get": { "tags": ["Users"], "summary": "Get user by ID", "description": "Get user. Own or Admin.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "User" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } }, "patch": { "tags": ["Users"], "summary": "Update user", "description": "Update user. Own or Admin.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateUserBody" } } } }, "responses": { "200": { "description": "Updated" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } }, "delete": { "tags": ["Users"], "summary": "Delete user", "description": "Soft-delete user. Admin or own.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Deleted" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } } },
+  "/api/users/{id}/orders": { "get": { "tags": ["Users"], "summary": "Get user orders", "description": "List orders for user. Own or Admin.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Orders" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } } },
+  "/api/users/{id}/cart": { "get": { "tags": ["Users"], "summary": "Get user cart", "description": "Get cart for user. Own or Admin.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Cart" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } } },
+  "/api/products/{id}": { "get": { "tags": ["Products"], "summary": "Get product by ID", "description": "Returns one product.", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Product" }, "404": { "description": "Not found" } } }, "patch": { "tags": ["Products"], "summary": "Update product", "description": "Update product. Admin only.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateProductBody" } } } }, "responses": { "200": { "description": "Updated" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } }, "delete": { "tags": ["Products"], "summary": "Delete product", "description": "Soft-delete product. Admin only.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Deleted" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } } },
+  "/api/products/{id}/reviews": { "get": { "tags": ["Products"], "summary": "Get product reviews", "description": "Reviews for a product.", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Reviews" }, "404": { "description": "Not found" } } } },
+  "/api/products/{id}/analytics": { "get": { "tags": ["Products"], "summary": "Product analytics", "description": "Analytics for product. Admin only.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Analytics" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } } },
+  "/api/cart/item/{id}": { "patch": { "tags": ["Cart"], "summary": "Update cart item", "description": "Update cart item quantity.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateCartItemBody" } } } }, "responses": { "200": { "description": "Updated" }, "400": { "description": "Validation error" }, "401": { "description": "Unauthorized" }, "404": { "description": "Not found" } } }, "delete": { "tags": ["Cart"], "summary": "Remove cart item", "description": "Remove item from cart.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Removed" }, "401": { "description": "Unauthorized" }, "404": { "description": "Not found" } } } },
+  "/api/orders/{id}": { "get": { "tags": ["Orders"], "summary": "Get order by ID", "description": "Get one order. Own or Admin.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Order" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } } },
+  "/api/orders/{id}/status": { "patch": { "tags": ["Orders"], "summary": "Update order status", "description": "Update order status. Admin only.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateOrderStatusBody" } } } }, "responses": { "200": { "description": "Updated" }, "400": { "description": "Validation error" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } } },
+  "/api/reviews": { "post": { "tags": ["Reviews"], "summary": "Create review", "description": "Create product review.", "security": [{"bearerAuth": []}], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateReviewBody" } } } }, "responses": { "201": { "description": "Created" }, "400": { "description": "Validation error" }, "401": { "description": "Unauthorized" }, "404": { "description": "Not found" } } } },
+  "/api/reviews/{id}": { "delete": { "tags": ["Reviews"], "summary": "Delete review", "description": "Delete review. Admin only.", "security": [{"bearerAuth": []}], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Deleted" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" }, "404": { "description": "Not found" } } } },
+  "/api/admin/revenue": { "get": { "tags": ["Admin"], "summary": "Revenue stats", "description": "Revenue breakdown. Admin only.", "security": [{"bearerAuth": []}], "responses": { "200": { "description": "Revenue" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } } } },
+  "/api/admin/users/stats": { "get": { "tags": ["Admin"], "summary": "User stats", "description": "User statistics. Admin only.", "security": [{"bearerAuth": []}], "responses": { "200": { "description": "Stats" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } } } },
+  "/api/admin/products/stats": { "get": { "tags": ["Admin"], "summary": "Product stats", "description": "Product statistics. Admin only.", "security": [{"bearerAuth": []}], "responses": { "200": { "description": "Stats" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } } } },
+  "/api/admin/orders/stats": { "get": { "tags": ["Admin"], "summary": "Order stats", "description": "Order statistics. Admin only.", "security": [{"bearerAuth": []}], "responses": { "200": { "description": "Stats" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } } } },
+  "/api/admin/create-admin": { "post": { "tags": ["Admin"], "summary": "Create admin", "description": "Create admin user. Super Admin only.", "security": [{"bearerAuth": []}], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateAdminBody" } } } }, "responses": { "201": { "description": "Created" }, "400": { "description": "Validation error" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } } } },
+  "/api/admin/logs": { "get": { "tags": ["Admin"], "summary": "Audit logs", "description": "Fetch audit logs. Admin only.", "security": [{"bearerAuth": []}], "responses": { "200": { "description": "Logs" }, "401": { "description": "Unauthorized" }, "403": { "description": "Forbidden" } } } }
+}
