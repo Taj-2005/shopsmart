@@ -25,7 +25,7 @@ env:
   SMTP_USER: ${{ vars.SMTP_USER }}
   SMTP_PASS: ${{ vars.SMTP_PASS }}
   SMTP_FROM: ${{ vars.SMTP_FROM }}
-  NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'http://localhost:4000' }}
+  NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
 
 jobs:
   e2e:
@@ -77,5 +77,5 @@ jobs:
           sleep 3
           (cd shopsmart/client && npm run start) &
           sleep 10
-          cd shopsmart/e2e && BASE_URL=http://localhost:3000 API_URL=${{ vars.NEXT_PUBLIC_API_URL || 'http://localhost:4000' }} npm run e2e
+          cd shopsmart/e2e && BASE_URL=http://localhost:3000 API_URL=${{ vars.NEXT_PUBLIC_API_URL}} npm run e2e
         timeout-minutes: 5

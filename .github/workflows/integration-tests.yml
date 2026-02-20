@@ -53,4 +53,4 @@ jobs:
         run: npx prisma db push --accept-data-loss
 
       - name: Run integration tests
-        run: npm run test -- --testPathPattern=integration --runInBand --forceExit
+        run: npx jest --runInBand --forceExit --testPathPattern=integration
