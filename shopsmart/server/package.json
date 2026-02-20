@@ -2,11 +2,11 @@
   "name": "shopsmart-backend",
   "version": "1.0.0",
   "description": "ShopSmart e-commerce API",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "build": "tsc",
     "dev": "ts-node-dev --respawn src/server.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",

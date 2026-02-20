@@ -1,6 +1,7 @@
 # GitHub Actions – Secrets & Variables
 
-Configure these in the repo: **Settings → Secrets and variables → Actions**.
+Configure these in the repo: **Settings → Secrets and variables → Actions**.  
+If workflows fail with database or auth errors, the most common cause is missing or invalid secrets/variables below.
 
 ## Secret (required)
 

@@ -3,8 +3,10 @@ name: Integration tests
 on:
   push:
     branches: [main, develop]
+    paths: ["shopsmart/**", ".github/workflows/integration-tests.yml"]
   pull_request:
     branches: [main, develop]
+    paths: ["shopsmart/**", ".github/workflows/integration-tests.yml"]
 
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
