@@ -1,0 +1,79 @@
+name: E2E tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  NODE_ENV: ${{ vars.NODE_ENV || 'test' }}
+  PORT: ${{ vars.PORT || '4000' }}
+  FRONTEND_URL: ${{ vars.FRONTEND_URL || 'http://localhost:3000' }}
+  JWT_ACCESS_SECRET: ${{ vars.JWT_ACCESS_SECRET }}
+  JWT_REFRESH_SECRET: ${{ vars.JWT_REFRESH_SECRET }}
+  JWT_ACCESS_EXPIRES: ${{ vars.JWT_ACCESS_EXPIRES || '1h' }}
+  JWT_REFRESH_EXPIRES_DAYS: ${{ vars.JWT_REFRESH_EXPIRES_DAYS || '30' }}
+  MAX_FAILED_LOGINS: ${{ vars.MAX_FAILED_LOGINS || '5' }}
+  LOCKOUT_MINUTES: ${{ vars.LOCKOUT_MINUTES || '15' }}
+  COOKIE_REFRESH_NAME: ${{ vars.COOKIE_REFRESH_NAME || 'refreshToken' }}
+  SMTP_HOST: ${{ vars.SMTP_HOST }}
+  SMTP_PORT: ${{ vars.SMTP_PORT }}
+  SMTP_USER: ${{ vars.SMTP_USER }}
+  SMTP_PASS: ${{ vars.SMTP_PASS }}
+  SMTP_FROM: ${{ vars.SMTP_FROM }}
+  NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'http://localhost:4000' }}
+
+jobs:
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: |
+            shopsmart/server/package-lock.json
+            shopsmart/client/package-lock.json
+
+      - name: Install server dependencies
+        run: npm ci
+        working-directory: shopsmart/server
+
+      - name: Generate Prisma client & push schema
+        run: |
+          npx prisma generate
+          npx prisma db push --accept-data-loss
+        working-directory: shopsmart/server
+
+      - name: Build server
+        run: npm run build
+        working-directory: shopsmart/server
+
+      - name: Install client dependencies
+        run: npm ci
+        working-directory: shopsmart/client
+
+      - name: Build client
+        run: npm run build
+        working-directory: shopsmart/client
+
+      - name: Install Playwright (e2e)
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+        working-directory: shopsmart/e2e
+
+      - name: Start server and client, run E2E
+        run: |
+          (cd shopsmart/server && node dist/src/server.js) &
+          sleep 3
+          (cd shopsmart/client && npm run start) &
+          sleep 10
+          cd shopsmart/e2e && BASE_URL=http://localhost:3000 API_URL=${{ vars.NEXT_PUBLIC_API_URL || 'http://localhost:4000' }} npm run e2e
+        timeout-minutes: 5

@@ -1,0 +1,54 @@
+name: Integration tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  NODE_ENV: ${{ vars.NODE_ENV || 'test' }}
+  PORT: ${{ vars.PORT || '4000' }}
+  FRONTEND_URL: ${{ vars.FRONTEND_URL || 'http://localhost:3000' }}
+  JWT_ACCESS_SECRET: ${{ vars.JWT_ACCESS_SECRET }}
+  JWT_REFRESH_SECRET: ${{ vars.JWT_REFRESH_SECRET }}
+  JWT_ACCESS_EXPIRES: ${{ vars.JWT_ACCESS_EXPIRES || '1h' }}
+  JWT_REFRESH_EXPIRES_DAYS: ${{ vars.JWT_REFRESH_EXPIRES_DAYS || '30' }}
+  MAX_FAILED_LOGINS: ${{ vars.MAX_FAILED_LOGINS || '5' }}
+  LOCKOUT_MINUTES: ${{ vars.LOCKOUT_MINUTES || '15' }}
+  COOKIE_REFRESH_NAME: ${{ vars.COOKIE_REFRESH_NAME || 'refreshToken' }}
+  SMTP_HOST: ${{ vars.SMTP_HOST }}
+  SMTP_PORT: ${{ vars.SMTP_PORT }}
+  SMTP_USER: ${{ vars.SMTP_USER }}
+  SMTP_PASS: ${{ vars.SMTP_PASS }}
+  SMTP_FROM: ${{ vars.SMTP_FROM }}
+
+jobs:
+  server-integration:
+    name: Server API integration tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shopsmart/server
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: shopsmart/server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        run: npx prisma db push --accept-data-loss
+
+      - name: Run integration tests
+        run: npm run test -- --testPathPattern=integration --runInBand --forceExit
