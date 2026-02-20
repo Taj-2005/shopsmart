@@ -9,9 +9,31 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { User } from "@/types/auth";
-import * as storage from "@/lib/auth-storage";
-import { api, type ApiError } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import type { User, UserRole } from "@/types/auth";
+import { setAccessToken, clearAccessToken, setOnUnauthorized } from "@/lib/auth-token";
+import { authApi, type AuthUser } from "@/api/auth.api";
+import { toApiError } from "@/api/axios";
+
+function normalizeRole(role: string): UserRole {
+  const r = role?.toUpperCase();
+  if (r === "CUSTOMER") return "customer";
+  if (r === "ADMIN") return "admin";
+  if (r === "SUPER_ADMIN") return "super_admin";
+  return "customer";
+}
+
+function toUser(u: AuthUser | null): User | null {
+  if (!u) return null;
+  return {
+    id: u.id,
+    email: u.email,
+    fullName: u.fullName,
+    role: normalizeRole(u.role),
+    avatarUrl: u.avatarUrl,
+    createdAt: u.createdAt,
+  };
+}
 
 type AuthState = {
   user: User | null;
@@ -23,7 +45,7 @@ type AuthState = {
 type AuthContextValue = AuthState & {
   login: (email: string, password: string, remember?: boolean) => Promise<void>;
   register: (fullName: string, email: string, password: string, role?: "customer" | "admin_request") => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -34,19 +56,8 @@ type AuthContextValue = AuthState & {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function storedUserToUser(s: storage.StoredUser | null): User | null {
-  if (!s) return null;
-  return {
-    id: s.id,
-    email: s.email,
-    fullName: s.fullName,
-    role: s.role as User["role"],
-    avatarUrl: s.avatarUrl,
-    createdAt: s.createdAt,
-  };
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -57,79 +68,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshUser = useCallback(async () => {
-    const stored = storage.getStoredUser();
-    setUserState(storedUserToUser(stored));
-    if (!stored?.id) return;
-    if (storage.isTokenExpired()) {
-      const refreshToken = storage.getRefreshToken();
-      if (!refreshToken) {
-        storage.clearAuth();
-        setUserState(null);
-        return;
+    try {
+      const data = await authApi.refresh();
+      if (data.success && data.accessToken && data.user) {
+        setAccessToken(data.accessToken, data.expiresIn);
+        setUserState(toUser(data.user));
       }
-      try {
-        const data = await api.post<{ accessToken: string; expiresIn: number; user: storage.StoredUser }>(
-          "/api/auth/refresh",
-          { refreshToken },
-          true
-        );
-        storage.setTokens(data.accessToken, refreshToken, data.expiresIn, data.user);
-        setUserState(storedUserToUser(data.user));
-      } catch {
-        storage.clearAuth();
-        setUserState(null);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const stored = storage.getStoredUser();
-    setUserState(storedUserToUser(stored));
-    setIsInitialized(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isInitialized) return;
-    const stored = storage.getStoredUser();
-    if (!stored?.id) return;
-    if (!storage.isTokenExpired()) return;
-    const refreshToken = storage.getRefreshToken();
-    if (!refreshToken) {
-      storage.clearAuth();
+    } catch {
+      clearAccessToken();
       setUserState(null);
-      return;
     }
-    api
-      .post<{ accessToken: string; expiresIn: number; user: storage.StoredUser }>(
-        "/api/auth/refresh",
-        { refreshToken },
-        true
-      )
+  }, []);
+
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      clearAccessToken();
+      setUserState(null);
+      if (typeof window !== "undefined") router.replace("/login");
+    });
+    return () => setOnUnauthorized(null);
+  }, [router]);
+
+  useEffect(() => {
+    authApi
+      .refresh()
       .then((data) => {
-        storage.setTokens(data.accessToken, refreshToken, data.expiresIn, data.user);
-        setUserState(storedUserToUser(data.user));
+        if (data.success && data.accessToken && data.user) {
+          setAccessToken(data.accessToken, data.expiresIn);
+          setUserState(toUser(data.user));
+        }
       })
       .catch(() => {
-        storage.clearAuth();
+        clearAccessToken();
         setUserState(null);
-      });
-  }, [isInitialized]);
+      })
+      .finally(() => setIsInitialized(true));
+  }, []);
 
   const login = useCallback(
-    async (email: string, password: string, remember?: boolean) => {
+    async (email: string, password: string, _remember?: boolean) => {
       setError(null);
       setIsLoading(true);
       try {
-        const data = await api.post<{
-          accessToken: string;
-          refreshToken: string;
-          expiresIn: number;
-          user: storage.StoredUser;
-        }>("/api/auth/login", { email, password, remember }, true);
-        storage.setTokens(data.accessToken, data.refreshToken, data.expiresIn, data.user);
-        setUserState(storedUserToUser(data.user));
+        const data = await authApi.login(email, password);
+        if (data.success && data.accessToken && data.user) {
+          setAccessToken(data.accessToken, data.expiresIn);
+          setUserState(toUser(data.user));
+        }
       } catch (e) {
-        const err = e as ApiError;
+        const err = toApiError(e);
         setError(err.message ?? "Login failed");
         throw e;
       } finally {
@@ -149,16 +136,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null);
       setIsLoading(true);
       try {
-        const data = await api.post<{
-          accessToken: string;
-          refreshToken: string;
-          expiresIn: number;
-          user: storage.StoredUser;
-        }>("/api/auth/register", { fullName, email, password, role }, true);
-        storage.setTokens(data.accessToken, data.refreshToken, data.expiresIn, data.user);
-        setUserState(storedUserToUser(data.user));
+        const data = await authApi.register({
+          fullName,
+          email,
+          password,
+          roleRequest: role === "admin_request" ? "admin" : undefined,
+        });
+        if (data.success && data.accessToken && data.user) {
+          setAccessToken(data.accessToken, data.expiresIn);
+          setUserState(toUser(data.user));
+        }
       } catch (e) {
-        const err = e as ApiError;
+        const err = toApiError(e);
         setError(err.message ?? "Registration failed");
         throw e;
       } finally {
@@ -168,19 +157,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const logout = useCallback(() => {
-    storage.clearAuth();
-    setUserState(null);
+  const logout = useCallback(async () => {
     setError(null);
+    try {
+      await authApi.logout();
+    } catch {
+      // ignore
+    } finally {
+      clearAccessToken();
+      setUserState(null);
+    }
   }, []);
 
   const forgotPassword = useCallback(async (email: string) => {
     setError(null);
     setIsLoading(true);
     try {
-      await api.post("/api/auth/forgot-password", { email }, true);
+      await authApi.forgotPassword(email);
     } catch (e) {
-      const err = e as ApiError;
+      const err = toApiError(e);
       setError(err.message ?? "Request failed");
       throw e;
     } finally {
@@ -192,9 +187,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     setIsLoading(true);
     try {
-      await api.post("/api/auth/reset-password", { token, newPassword }, true);
+      await authApi.resetPassword(token, newPassword);
     } catch (e) {
-      const err = e as ApiError;
+      const err = toApiError(e);
       setError(err.message ?? "Reset failed");
       throw e;
     } finally {

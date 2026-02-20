@@ -9,7 +9,7 @@ export type ApiError = {
 };
 
 async function getAccessToken(): Promise<string | null> {
-  const { getAccessToken: get } = await import("@/lib/auth-storage");
+  const { getAccessToken: get } = await import("@/lib/auth-token");
   return get();
 }
 
@@ -26,7 +26,7 @@ export async function apiRequest<T>(
     const token = await getAccessToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
-  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
+  const res = await fetch(`${API_BASE}${path}`, { ...init, headers, credentials: "include" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const err: ApiError = {

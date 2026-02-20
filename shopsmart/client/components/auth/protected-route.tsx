@@ -56,3 +56,19 @@ export function ProtectedRouteSkeleton() {
     </div>
   );
 }
+
+export function AdminRoute({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+  return (
+    <ProtectedRoute requiredRole={["admin", "super_admin"]} fallback={fallback}>
+      {children}
+    </ProtectedRoute>
+  );
+}
+
+export function SuperAdminRoute({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+  return (
+    <ProtectedRoute requiredRole="super_admin" fallback={fallback}>
+      {children}
+    </ProtectedRoute>
+  );
+}

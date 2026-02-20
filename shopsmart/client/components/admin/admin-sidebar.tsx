@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "@/components/ui/logo";
 import { useAuth } from "@/context/auth-context";
 
@@ -16,7 +16,13 @@ const NAV = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/login");
+  };
 
   return (
     <aside
@@ -60,7 +66,7 @@ export function AdminSidebar() {
           </Link>
           <button
             type="button"
-            onClick={() => logout()}
+            onClick={handleLogout}
             className="text-xs font-medium text-muted-foreground hover:text-primary"
           >
             Log out

@@ -2,9 +2,11 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Container } from "./container";
 import { Logo } from "@/components/ui/logo";
 import { useShop } from "@/context/shop-context";
+import { useAuth } from "@/context/auth-context";
 
 function CartIcon() {
   return (
@@ -94,9 +96,17 @@ const NAV_LINKS = [
 
 export function LandingHeader() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   const { cartCount, wishlistCount } = useShop();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const closeMenu = useCallback(() => setOpen(false), []);
+
+  const handleLogout = async () => {
+    closeMenu();
+    await logout();
+    router.replace("/");
+  };
 
   return (
     <header
@@ -137,6 +147,46 @@ export function LandingHeader() {
                 Start Shopping
               </Link>
             </li>
+            {isAuthenticated ? (
+              <>
+                <li>
+                  <Link
+                    href="/profile"
+                    className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent min-h-[44px] min-w-[44px] md:flex md:items-center md:justify-center"
+                  >
+                    Profile
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+                  >
+                    Log out
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link
+                    href="/login"
+                    className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent min-h-[44px] min-w-[44px] md:flex md:items-center md:justify-center"
+                  >
+                    Log in
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/signup"
+                    className="inline-flex h-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius)] border-2 border-accent px-4 text-sm font-medium text-accent transition-colors hover:bg-accent/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+                  >
+                    Sign up
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
 
@@ -206,6 +256,49 @@ export function LandingHeader() {
                   Start Shopping
                 </Link>
               </li>
+              {isAuthenticated ? (
+                <>
+                  <li>
+                    <Link
+                      href="/profile"
+                      onClick={closeMenu}
+                      className="flex min-h-[44px] items-center rounded-md px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                    >
+                      Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex min-h-[44px] w-full items-center rounded-md px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-primary text-left"
+                    >
+                      Log out
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      href="/login"
+                      onClick={closeMenu}
+                      className="flex min-h-[44px] items-center rounded-md px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                    >
+                      Log in
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/signup"
+                      onClick={closeMenu}
+                      className="flex min-h-[44px] items-center justify-center rounded-[var(--radius)] border-2 border-accent px-4 py-3 text-sm font-medium text-accent mt-2"
+                    >
+                      Sign up
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </nav>
         </div>

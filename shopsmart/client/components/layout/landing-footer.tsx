@@ -42,7 +42,7 @@ export function LandingFooter() {
             </h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.shop.map(({ label, href }) => (
-                <li key={href}>
+                <li key={label}>
                   <Link
                     href={href}
                     className="text-sm text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
@@ -59,7 +59,7 @@ export function LandingFooter() {
             </h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.help.map(({ label, href }) => (
-                <li key={href}>
+                <li key={label}>
                   <Link
                     href={href}
                     className="text-sm text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
@@ -76,7 +76,7 @@ export function LandingFooter() {
             </h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.company.map(({ label, href }) => (
-                <li key={href}>
+                <li key={label}>
                   <Link
                     href={href}
                     className="text-sm text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"

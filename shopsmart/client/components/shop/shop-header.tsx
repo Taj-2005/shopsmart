@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { Logo } from "@/components/ui/logo";
 import { useShop } from "@/context/shop-context";
@@ -49,13 +49,19 @@ function CartIcon() {
 
 export function ShopHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/home";
   const isShop = pathname?.startsWith("/shop");
   const isCart = pathname === "/cart";
   const isWishlist = pathname === "/wishlist";
   const { cartCount, wishlistCount } = useShop();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/home");
+  };
 
   return (
     <header
@@ -136,6 +142,22 @@ export function ShopHeader() {
         </nav>
 
         <div className="flex items-center gap-2 shrink-0" role="toolbar" aria-label="Account and cart actions">
+          {!isAuthenticated && (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent rounded-md px-3 py-2 hidden sm:inline-flex"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="text-sm font-medium rounded-md px-3 py-2 border-2 border-accent text-accent hover:bg-accent/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent hidden sm:inline-flex"
+              >
+                Sign up
+              </Link>
+            </>
+          )}
           <Link
             href="/wishlist"
             className={`relative flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent ${isWishlist ? "text-accent bg-accent/10" : "text-muted-foreground hover:bg-muted hover:text-primary"}`}
@@ -161,19 +183,28 @@ export function ShopHeader() {
             )}
           </Link>
           {isAuthenticated ? (
-            <Link
-              href="/profile"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-accent/20 font-medium text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
-              aria-label="Profile"
-            >
-              <span className="text-sm" aria-hidden>
-                {user?.fullName?.charAt(0) ?? "U"}
-              </span>
-            </Link>
+            <>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent rounded-md px-3 py-2 hidden sm:inline-flex"
+              >
+                Log out
+              </button>
+              <Link
+                href="/profile"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-accent/20 font-medium text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+                aria-label="Profile"
+              >
+                <span className="text-sm" aria-hidden>
+                  {user?.fullName?.charAt(0) ?? "U"}
+                </span>
+              </Link>
+            </>
           ) : (
             <Link
               href="/login"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent sm:hidden"
               aria-label="Log in"
             >
               <span className="text-sm font-medium" aria-hidden>U</span>
