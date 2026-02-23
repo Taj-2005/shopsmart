@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GitHub Pages — Deployment Successful</title>
+    <title>AWS EC2 — Deployment Successful</title>
+
     <style>
         *,
         *::before,
@@ -22,63 +23,86 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #e2e8f0;
             padding: 1.5rem;
-            line-height: 1.6;
         }
 
         main {
-            max-width: 32rem;
+            max-width: 40rem;
             width: 100%;
             text-align: center;
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(30, 41, 59, 0.85);
             border: 1px solid rgba(148, 163, 184, 0.2);
             border-radius: 1rem;
-            padding: 2.5rem 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 3rem 2.5rem;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
         }
 
         h1 {
-            font-size: 1.75rem;
+            font-size: 2rem;
             font-weight: 700;
-            margin: 0 0 1rem;
-            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
         }
 
-        .repo-name {
-            font-size: 1.125rem;
+        .sub-heading {
+            font-size: 1.1rem;
             font-weight: 600;
+            color: #38bdf8;
+            margin-bottom: 1rem;
+        }
+
+        .info {
+            font-size: 0.95rem;
             color: #94a3b8;
             margin-bottom: 0.5rem;
         }
 
         .timestamp {
-            font-size: 0.875rem;
-            color: #64748b;
-            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            color: #facc15;
+            margin-top: 1.5rem;
+            font-weight: 600;
         }
 
-        .message {
-            font-size: 1rem;
-            color: #cbd5e1;
-            margin: 0;
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 
 <body>
     <main>
-        <h1>🚀 GitHub Pages Deployment Successful</h1>
-        <p class="repo-name" id="repo-name">devops</p>
-        <p class="timestamp" id="timestamp">—</p>
-        <p class="message">This project has been successfully deployed using GitHub Actions.</p>
+        <div class="badge">CI/CD Pipeline Active</div>
+
+        <h1>🚀 AWS EC2 Deployment Successful</h1>
+
+        <div class="sub-heading">
+            Ubuntu Server + Nginx + GitHub Actions
+        </div>
+
+        <p class="info"><strong>Repository:</strong> Github_to_AWS</p>
+        <p class="info"><strong>Deployment Method:</strong> GitHub Actions → SSH → EC2</p>
+        <p class="info"><strong>Server:</strong> Ubuntu (Nginx)</p>
+
+        <p class="timestamp" id="timestamp">Deployed at: 23 February 2026, 12:32 PM IST</p>
+
+        <div class="footer">
+            Your static HTML file has been successfully deployed to AWS EC2.
+        </div>
     </main>
-    <script>
-        (function () {
-            var path = window.location.pathname.replace(/^\//, "").split("/");
-            var repo = path[0] && path[1] ? path[0] + " / " + path[1] : "devops";
-            document.getElementById("repo-name").textContent = repo;
-            document.getElementById("timestamp").textContent = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
-        })();
-    </script>
+
 </body>
 
 </html>
