@@ -58,7 +58,7 @@ describe("API integration", () => {
   });
 
   describe("POST /api/auth/refresh", () => {
-    it("returns 400 when no refresh token in body or cookie", async () => {
+    it("returns 400 when no refresh token cookie", async () => {
       const res = await request(app).post("/api/auth/refresh");
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -75,7 +75,7 @@ describe("API integration", () => {
   });
 
   describe("GET /api/auth/me", () => {
-    it("returns 401 when no Authorization header", async () => {
+    it("returns 401 when no access token cookie", async () => {
       const res = await request(app).get("/api/auth/me");
       expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);

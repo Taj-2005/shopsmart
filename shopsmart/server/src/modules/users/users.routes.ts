@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate";
 import { authorize } from "../../middleware/authorize";
+import { allowSelfOrAdmin } from "../../middleware/allowSelfOrAdmin";
 import { prisma } from "../../config/prisma";
 import { AppError } from "../../middleware/errorHandler";
 import type { AuthRequest } from "../../middleware/authenticate";
+import { ADMIN_ROLES } from "../../constants/roles";
 
 const router = Router();
 
-router.get("/", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req, res, next) => {
+router.get("/", authenticate, authorize(...ADMIN_ROLES), async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
       where: { deletedAt: null },
@@ -20,14 +22,10 @@ router.get("/", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req, res
   }
 });
 
-router.get("/:id", authenticate, async (req: AuthRequest, res, next) => {
+router.get("/:id", authenticate, allowSelfOrAdmin("id"), async (req: AuthRequest, res, next) => {
   try {
-    const { id } = req.params;
-    if (req.user?.roleType !== "ADMIN" && req.user?.roleType !== "SUPER_ADMIN" && req.user?.id !== id) {
-      return next(new AppError(403, "Forbidden", "FORBIDDEN"));
-    }
     const user = await prisma.user.findFirst({
-      where: { id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null },
       select: { id: true, email: true, fullName: true, role: true, avatarUrl: true, createdAt: true },
     });
     if (!user) return next(new AppError(404, "User not found", "NOT_FOUND"));
@@ -37,12 +35,9 @@ router.get("/:id", authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.patch("/:id", authenticate, async (req: AuthRequest, res, next) => {
+router.patch("/:id", authenticate, allowSelfOrAdmin("id"), async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
-    if (req.user?.roleType !== "ADMIN" && req.user?.roleType !== "SUPER_ADMIN" && req.user?.id !== id) {
-      return next(new AppError(403, "Forbidden", "FORBIDDEN"));
-    }
     const { fullName, avatarUrl } = req.body;
     const user = await prisma.user.update({
       where: { id },
@@ -55,12 +50,9 @@ router.patch("/:id", authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.delete("/:id", authenticate, async (req: AuthRequest, res, next) => {
+router.delete("/:id", authenticate, allowSelfOrAdmin("id"), async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
-    if (req.user?.roleType !== "ADMIN" && req.user?.roleType !== "SUPER_ADMIN" && req.user?.id !== id) {
-      return next(new AppError(403, "Forbidden", "FORBIDDEN"));
-    }
     await prisma.user.update({ where: { id }, data: { deletedAt: new Date(), active: false } });
     res.json({ success: true, message: "User deleted" });
   } catch (e) {
@@ -68,14 +60,10 @@ router.delete("/:id", authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.get("/:id/orders", authenticate, async (req: AuthRequest, res, next) => {
+router.get("/:id/orders", authenticate, allowSelfOrAdmin("id"), async (req: AuthRequest, res, next) => {
   try {
-    const { id } = req.params;
-    if (req.user?.roleType !== "ADMIN" && req.user?.roleType !== "SUPER_ADMIN" && req.user?.id !== id) {
-      return next(new AppError(403, "Forbidden", "FORBIDDEN"));
-    }
     const orders = await prisma.order.findMany({
-      where: { userId: id },
+      where: { userId: req.params.id },
       include: { items: { include: { product: { select: { id: true, name: true } } } } },
       orderBy: { createdAt: "desc" },
       take: 50,
@@ -93,14 +81,10 @@ router.get("/:id/orders", authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.get("/:id/cart", authenticate, async (req: AuthRequest, res, next) => {
+router.get("/:id/cart", authenticate, allowSelfOrAdmin("id"), async (req: AuthRequest, res, next) => {
   try {
-    const { id } = req.params;
-    if (req.user?.roleType !== "ADMIN" && req.user?.roleType !== "SUPER_ADMIN" && req.user?.id !== id) {
-      return next(new AppError(403, "Forbidden", "FORBIDDEN"));
-    }
     const cart = await prisma.cart.findUnique({
-      where: { userId: id },
+      where: { userId: req.params.id },
       include: { items: { include: { product: true } } },
     });
     if (!cart) return res.json({ success: true, data: null });

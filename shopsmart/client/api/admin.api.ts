@@ -28,8 +28,39 @@ export const adminApi = {
     apiClient.get<ApiResponse<{ status: string; _count: number }[]>>("/api/admin/orders/stats").then((r) => r.data),
 
   createAdmin: (data: { email: string; password: string; fullName?: string }) =>
-    apiClient.post<ApiResponse<{ id: string; email: string; fullName: string; role: unknown }>>("/api/admin/create-admin", data).then((r) => r.data),
+    apiClient.post<ApiResponse<{ id: string; email: string; fullName: string; role: unknown }>>("/api/super-admin/admins", data).then((r) => r.data),
 
   getLogs: (limit?: number) =>
     apiClient.get<ApiResponse<unknown[]>>("/api/admin/logs", { params: { limit } }).then((r) => r.data),
+
+  listOrders: (params?: { limit?: number; status?: string }) =>
+    apiClient.get<ApiResponse<AdminOrder[]>>("/api/admin/orders", { params }).then((r) => r.data),
+
+  getReviews: (params?: { limit?: number; status?: string }) =>
+    apiClient.get<ApiResponse<AdminReview[]>>("/api/admin/reviews", { params }).then((r) => r.data),
+};
+
+export type AdminOrder = {
+  id: string;
+  userId: string;
+  status: string;
+  subtotal: number;
+  discount: number;
+  shipping: number;
+  total: number;
+  createdAt: string;
+  items: Array<{ id: string; productId: string; quantity: number; price: number; product?: { id: string; name: string; image: string } }>;
+  user?: { id: string; email: string; fullName: string };
+};
+
+export type AdminReview = {
+  id: string;
+  userId: string;
+  productId: string;
+  rating: number;
+  body: string | null;
+  status: string;
+  createdAt: string;
+  user: { id: string; fullName: string; email: string };
+  product: { id: string; name: string; slug: string };
 };

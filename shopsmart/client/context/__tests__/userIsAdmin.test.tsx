@@ -18,9 +18,8 @@ jest.mock("@/api/auth.api", () => ({
 
 jest.mock("next/navigation", () => ({ useRouter: () => ({ replace: jest.fn() }) }));
 jest.mock("@/lib/auth-token", () => ({
-  setAccessToken: jest.fn(),
-  clearAccessToken: jest.fn(),
   setOnUnauthorized: jest.fn(),
+  triggerUnauthorized: jest.fn(),
 }));
 
 function ShowAdmin() {
@@ -50,8 +49,6 @@ describe("useIsAdmin / useIsSuperAdmin", () => {
     const { authApi } = require("@/api/auth.api");
     authApi.refresh.mockResolvedValue({
       success: true,
-      accessToken: "t",
-      expiresIn: 3600,
       user: { id: "1", email: "a@b.com", fullName: "Admin", role: "ADMIN", createdAt: "2024-01-01T00:00:00Z" },
     });
 
@@ -69,8 +66,6 @@ describe("useIsAdmin / useIsSuperAdmin", () => {
     const { authApi } = require("@/api/auth.api");
     authApi.refresh.mockResolvedValue({
       success: true,
-      accessToken: "t",
-      expiresIn: 3600,
       user: { id: "1", email: "a@b.com", fullName: "Super", role: "SUPER_ADMIN", createdAt: "2024-01-01T00:00:00Z" },
     });
 

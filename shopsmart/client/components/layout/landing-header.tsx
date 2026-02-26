@@ -99,6 +99,8 @@ export function LandingHeader() {
   const router = useRouter();
   const { cartCount, wishlistCount } = useShop();
   const { user, isAuthenticated, logout } = useAuth();
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+  const isSuperAdmin = user?.role === "super_admin";
 
   const closeMenu = useCallback(() => setOpen(false), []);
 
@@ -147,6 +149,26 @@ export function LandingHeader() {
                 Start Shopping
               </Link>
             </li>
+            {isAdmin && (
+              <li>
+                <Link
+                  href="/admin"
+                  className="rounded-md px-3 py-2 text-sm font-semibold text-accent transition-colors hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent min-h-[44px] min-w-[44px] md:flex md:items-center md:justify-center"
+                >
+                  Admin
+                </Link>
+              </li>
+            )}
+            {isSuperAdmin && (
+              <li>
+                <Link
+                  href="/super-admin"
+                  className="rounded-md px-3 py-2 text-sm font-semibold text-accent transition-colors hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent min-h-[44px] min-w-[44px] md:flex md:items-center md:justify-center"
+                >
+                  Super Admin
+                </Link>
+              </li>
+            )}
             {isAuthenticated ? (
               <>
                 <li>
@@ -256,6 +278,17 @@ export function LandingHeader() {
                   Start Shopping
                 </Link>
               </li>
+              {isAdmin && (
+                <li>
+                  <Link
+                    href="/admin"
+                    onClick={closeMenu}
+                    className="flex min-h-[44px] items-center rounded-md px-3 py-3 text-sm font-medium text-accent hover:bg-muted hover:text-primary"
+                  >
+                    Admin
+                  </Link>
+                </li>
+              )}
               {isAuthenticated ? (
                 <>
                   <li>

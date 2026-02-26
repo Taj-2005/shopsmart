@@ -8,24 +8,15 @@ export type ApiError = {
   errors?: Record<string, string[]>;
 };
 
-async function getAccessToken(): Promise<string | null> {
-  const { getAccessToken: get } = await import("@/lib/auth-token");
-  return get();
-}
-
 export async function apiRequest<T>(
   path: string,
   options: RequestInit & { skipAuth?: boolean } = {}
 ): Promise<T> {
-  const { skipAuth, ...init } = options;
+  const { skipAuth: _skipAuth, ...init } = options;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...((init.headers as Record<string, string>) ?? {}),
   };
-  if (!skipAuth) {
-    const token = await getAccessToken();
-    if (token) headers.Authorization = `Bearer ${token}`;
-  }
   const res = await fetch(`${API_BASE}${path}`, { ...init, headers, credentials: "include" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

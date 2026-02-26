@@ -2,6 +2,7 @@ import path from "path";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import swaggerUi from "swagger-ui-express";
 import { env } from "./config/env";
@@ -30,8 +31,11 @@ app.use(
   cors({
     origin: env.FRONTEND_URL,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.use(cookieParser());
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -57,6 +61,7 @@ const swaggerOptions: swaggerUi.SwaggerUiOptions = {
   customfavIcon: "/api-docs/icon.svg",
   swaggerOptions: {
     layout: "BaseLayout",
+    persistAuthorization: true,
   },
 };
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec as swaggerUi.JsonObject, swaggerOptions));

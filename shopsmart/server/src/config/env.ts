@@ -11,7 +11,14 @@ export const env = {
   JWT_ACCESS_EXPIRES: process.env.JWT_ACCESS_EXPIRES ?? "1h",
   JWT_REFRESH_EXPIRES_DAYS: parseInt(process.env.JWT_REFRESH_EXPIRES_DAYS ?? "30", 10),
   FRONTEND_URL: process.env.FRONTEND_URL ?? "http://localhost:3000",
-  COOKIE_REFRESH_NAME: "refreshToken",
+  COOKIE_ACCESS_NAME: process.env.COOKIE_ACCESS_NAME ?? "accessToken",
+  COOKIE_REFRESH_NAME: process.env.COOKIE_REFRESH_NAME ?? "refreshToken",
+  /** For cross-site cookies use ".yourrootdomain.com" when frontend and backend share domain; leave empty otherwise. */
+  COOKIE_DOMAIN: process.env.COOKIE_DOMAIN ?? undefined,
+  /** Must be true with sameSite: "none" for cross-site. Use HTTPS in production. */
+  COOKIE_SECURE: process.env.COOKIE_SECURE !== "false" && process.env.NODE_ENV === "production",
+  /** Explicit override; when COOKIE_SECURE is true defaults to "none", else "lax". */
+  COOKIE_SAME_SITE: process.env.COOKIE_SAME_SITE as "strict" | "lax" | "none" | undefined,
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_PORT: parseInt(process.env.SMTP_PORT ?? "587", 10),
   SMTP_USER: process.env.SMTP_USER,

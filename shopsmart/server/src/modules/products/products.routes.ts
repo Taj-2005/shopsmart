@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate";
 import { authorize } from "../../middleware/authorize";
 import { prisma } from "../../config/prisma";
+import { ADMIN_ROLES } from "../../constants/roles";
 
 const router = Router();
 
@@ -59,7 +60,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.get("/:id/analytics", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req, res, next) => {
+router.get("/:id/analytics", authenticate, authorize(...ADMIN_ROLES), async (req, res, next) => {
   try {
     const product = await prisma.product.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -85,7 +86,7 @@ router.get("/:id/analytics", authenticate, authorize("ADMIN", "SUPER_ADMIN"), as
   }
 });
 
-router.post("/", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req, res, next) => {
+router.post("/", authenticate, authorize(...ADMIN_ROLES), async (req, res, next) => {
   try {
     const body = req.body;
     const product = await prisma.product.create({
@@ -110,7 +111,7 @@ router.post("/", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req, re
   }
 });
 
-router.patch("/:id", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req, res, next) => {
+router.patch("/:id", authenticate, authorize(...ADMIN_ROLES), async (req, res, next) => {
   try {
     const body = req.body;
     const product = await prisma.product.update({
@@ -136,7 +137,7 @@ router.patch("/:id", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req
   }
 });
 
-router.delete("/:id", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req, res, next) => {
+router.delete("/:id", authenticate, authorize(...ADMIN_ROLES), async (req, res, next) => {
   try {
     await prisma.product.update({
       where: { id: req.params.id },

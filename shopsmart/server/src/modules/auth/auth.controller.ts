@@ -4,16 +4,36 @@ import { env } from "../../config/env";
 import * as authService from "./auth.service";
 import { AppError } from "../../middleware/errorHandler";
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
-  maxAge: env.JWT_REFRESH_EXPIRES_DAYS * 24 * 60 * 60 * 1000,
-  path: "/",
-};
+const ACCESS_MAX_AGE_MS = 3600 * 1000; // 1h, match JWT access expiry
+const REFRESH_MAX_AGE_MS = env.JWT_REFRESH_EXPIRES_DAYS * 24 * 60 * 60 * 1000;
+
+function cookieOptions(maxAgeMs: number): { httpOnly: true; secure: boolean; sameSite: "none" | "lax" | "strict"; maxAge: number; path: string; domain?: string } {
+  const sameSite = env.COOKIE_SAME_SITE ?? (env.COOKIE_SECURE ? "none" : "lax");
+  const options = {
+    httpOnly: true,
+    secure: env.COOKIE_SECURE,
+    sameSite,
+    maxAge: maxAgeMs,
+    path: "/",
+  };
+  if (env.COOKIE_DOMAIN) (options as { domain?: string }).domain = env.COOKIE_DOMAIN;
+  return options as ReturnType<typeof cookieOptions>;
+}
 
 function getRefreshTokenFromReq(req: AuthRequest): string | undefined {
-  return req.body?.refreshToken ?? req.cookies?.[env.COOKIE_REFRESH_NAME];
+  return req.cookies?.[env.COOKIE_REFRESH_NAME];
+}
+
+function clearCookieOptions(): { path: string; domain?: string; httpOnly?: boolean; secure?: boolean; sameSite?: "none" | "lax" | "strict" } {
+  const sameSite = env.COOKIE_SAME_SITE ?? (env.COOKIE_SECURE ? "none" : "lax");
+  const o: { path: string; domain?: string; httpOnly?: boolean; secure?: boolean; sameSite?: "none" | "lax" | "strict" } = {
+    path: "/",
+    httpOnly: true,
+    secure: env.COOKIE_SECURE,
+    sameSite,
+  };
+  if (env.COOKIE_DOMAIN) o.domain = env.COOKIE_DOMAIN;
+  return o;
 }
 
 export async function register(
@@ -29,12 +49,12 @@ export async function register(
       fullName,
       roleRequest,
     });
-    res.cookie(env.COOKIE_REFRESH_NAME, result.refreshToken, COOKIE_OPTIONS);
+    res.cookie(env.COOKIE_ACCESS_NAME, result.accessToken, cookieOptions(ACCESS_MAX_AGE_MS));
+    res.cookie(env.COOKIE_REFRESH_NAME, result.refreshToken, cookieOptions(REFRESH_MAX_AGE_MS));
     res.status(201).json({
       success: true,
-      accessToken: result.accessToken,
-      expiresIn: result.expiresIn,
       user: result.user,
+      accessToken: result.accessToken,
     });
   } catch (e) {
     next(e);
@@ -48,12 +68,12 @@ export async function login(
 ): Promise<void> {
   try {
     const result = await authService.login(req.body, req.ip);
-    res.cookie(env.COOKIE_REFRESH_NAME, result.refreshToken, COOKIE_OPTIONS);
+    res.cookie(env.COOKIE_ACCESS_NAME, result.accessToken, cookieOptions(ACCESS_MAX_AGE_MS));
+    res.cookie(env.COOKIE_REFRESH_NAME, result.refreshToken, cookieOptions(REFRESH_MAX_AGE_MS));
     res.json({
       success: true,
-      accessToken: result.accessToken,
-      expiresIn: result.expiresIn,
       user: result.user,
+      accessToken: result.accessToken,
     });
   } catch (e) {
     next(e);
@@ -72,12 +92,12 @@ export async function refresh(
       return;
     }
     const result = await authService.refresh(token);
-    res.cookie(env.COOKIE_REFRESH_NAME, result.refreshToken, COOKIE_OPTIONS);
+    res.cookie(env.COOKIE_ACCESS_NAME, result.accessToken, cookieOptions(ACCESS_MAX_AGE_MS));
+    res.cookie(env.COOKIE_REFRESH_NAME, result.refreshToken, cookieOptions(REFRESH_MAX_AGE_MS));
     res.json({
       success: true,
-      accessToken: result.accessToken,
-      expiresIn: result.expiresIn,
       user: result.user,
+      accessToken: result.accessToken,
     });
   } catch (e) {
     next(e);
@@ -92,7 +112,9 @@ export async function logout(
   try {
     const token = getRefreshTokenFromReq(req);
     await authService.logout(token);
-    res.clearCookie(env.COOKIE_REFRESH_NAME, { path: "/" });
+    const clearOpts = clearCookieOptions();
+    res.clearCookie(env.COOKIE_ACCESS_NAME, clearOpts);
+    res.clearCookie(env.COOKIE_REFRESH_NAME, clearOpts);
     res.json({ success: true, message: "Logged out" });
   } catch (e) {
     next(e);

@@ -5,6 +5,7 @@ import { prisma } from "../../config/prisma";
 import { AppError } from "../../middleware/errorHandler";
 import type { AuthRequest } from "../../middleware/authenticate";
 import { OrderStatus } from "@prisma/client";
+import { ADMIN_ROLES } from "../../constants/roles";
 
 const router = Router();
 
@@ -76,9 +77,13 @@ router.get("/", authenticate, async (req: AuthRequest, res, next) => {
 
 router.get("/:id", authenticate, async (req: AuthRequest, res, next) => {
   try {
+    const isAdmin = req.user?.roleType === "ADMIN" || req.user?.roleType === "SUPER_ADMIN";
     const order = await prisma.order.findFirst({
-      where: { id: req.params.id, userId: req.user!.id },
-      include: { items: { include: { product: true } }, address: true },
+      where: {
+        id: req.params.id,
+        ...(isAdmin ? {} : { userId: req.user!.id }),
+      },
+      include: { items: { include: { product: true } }, address: true, user: isAdmin ? { select: { id: true, email: true, fullName: true } } : false },
     });
     if (!order) return next(new AppError(404, "Order not found", "NOT_FOUND"));
     res.json({
@@ -97,7 +102,7 @@ router.get("/:id", authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.patch("/:id/status", authenticate, authorize("ADMIN", "SUPER_ADMIN"), async (req, res, next) => {
+router.patch("/:id/status", authenticate, authorize(...ADMIN_ROLES), async (req, res, next) => {
   try {
     const { status } = req.body;
     if (!Object.values(OrderStatus).includes(status)) return next(new AppError(400, "Invalid status", "VALIDATION_ERROR"));

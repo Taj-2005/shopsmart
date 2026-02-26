@@ -17,47 +17,36 @@ This is the **ShopSmart API**: the backend for the ShopSmart eCommerce app. It i
 **What each section does:**
 
 - **Health** — Check if the API is running (no login required).
-- **Auth** — Register, log in, refresh token, log out. Login returns a JWT; you send that token with any request that requires a logged-in user.
-- **Users** — Get or update the current user profile. Admins can list and manage users.
-- **Categories** — List product categories. Admins can create or update categories.
-- **Products** — List and get products (and their reviews). Admins can create, update, or delete products.
-- **Cart** — Add, update, or remove items in the current user's cart (requires login).
-- **Orders** — Create an order and list the current user's orders (requires login). Admins can update order status.
-- **Reviews** — Add a product review (requires login). Admins can delete reviews.
-- **Admin** — Dashboard, stats, revenue, logs. Only admin and super_admin roles can use these.
+- **Auth** — Register, log in, refresh token, log out. The server sets httpOnly cookies (access + refresh) for browser clients. For **Swagger / API testing**, the response body includes \`accessToken\`: use it in the **Authorize** button as \`Bearer <accessToken>\`.
+- **Users** — Get or update the current user profile. **Requires auth.** Admins can list and manage users (Admin / Super Admin).
+- **Categories** — List product categories (public). Create/update categories require **Admin** or **Super Admin**.
+- **Products** — List and get products (public). Create/update/delete require **Admin** or **Super Admin**.
+- **Cart** — Requires **authenticated user**. Add, update, or remove cart items.
+- **Orders** — Create and list orders require **authenticated user**. Update order status requires **Admin** or **Super Admin**.
+- **Reviews** — Create review requires **authenticated user**. Delete/update status require **Admin** or **Super Admin**.
+- **Admin** — Dashboard, stats, revenue, logs, coupons, reports. **Admin** or **Super Admin** only.
+- **Super Admin** — System config, create/delete admins, assign roles. **Super Admin** only.
 
-Endpoints that require a logged-in user are marked with a lock. For those you must send a valid JWT in the \`Authorization\` header.
+Endpoints that require authentication show a lock icon. Use **Authorize** and enter \`Bearer <your-access-token>\` (paste the token from login/register/refresh response). The server accepts either the \`Authorization: Bearer\` header or the access token cookie.
 
 ---
 
-## Authentication (how to get and use a token)
+## Authentication
 
-**1. What you need**  
-Endpoints with a lock icon require a **JWT**. You get it by logging in, then send it on every request that needs authentication.
+**For Swagger "Try it out":**
 
-**2. Get a token**  
-Call **POST /api/auth/login** with a JSON body containing \`email\` and \`password\`. The response includes \`accessToken\` and \`expiresIn\` (seconds). Use \`accessToken\` as your JWT.
+1. Call **POST /api/auth/login** with \`email\` and \`password\` (e.g. \`customer@shopsmart.com\` / \`Customer1!\`).
+2. Copy \`accessToken\` from the response body.
+3. Click **Authorize** (top right), enter: \`Bearer <paste-token-here>\`, then **Authorize**.
+4. Protected endpoints will now send the token automatically.
 
-**Example (cURL):**
+**For browser / cookie-based clients:**
 
-\`\`\`bash
-curl -X POST http://localhost:4000/api/auth/login \\
-  -H "Content-Type: application/json" \\
-  -d '{"email":"customer@shopsmart.com","password":"Customer1!"}'
-\`\`\`
+- Login, register, and refresh set **httpOnly cookies** (\`accessToken\`, \`refreshToken\`). Use \`credentials: "include"\` (fetch) or \`withCredentials: true\` (Axios). No need to send the token in the header.
 
-**3. Send the token**  
-Add this header to your request:
+**Protected routes** accept either \`Authorization: Bearer <token>\` or the access token cookie. Missing or invalid token returns **401**. Insufficient role returns **403**.
 
-\`\`\`
-Authorization: Bearer <paste your accessToken here>
-\`\`\`
-
-**4. In Swagger UI**  
-Click **Authorize**, paste only the token value (do not type "Bearer"), then Authorize. Swagger will send the token for all locked endpoints.
-
-**5. Test accounts**  
-These users exist after running the database seed. Use them to log in and try the API:
+**Test accounts** (after running the database seed):
 
 | Role        | Email                    | Password   |
 | ----------- | ------------------------- | ---------- |
@@ -80,6 +69,7 @@ These users exist after running the database seed. Use them to log in and try th
     { name: "Orders", description: "Orders" },
     { name: "Reviews", description: "Product reviews" },
     { name: "Admin", description: "Admin dashboard and management" },
+    { name: "Super Admin", description: "System owner / platform configuration (Super Admin only)" },
   ],
   components: {
     securitySchemes: {
@@ -87,7 +77,7 @@ These users exist after running the database seed. Use them to log in and try th
         type: "http",
         scheme: "bearer",
         bearerFormat: "JWT",
-        description: "JWT access token from login or register. Use: Authorization: Bearer <token>",
+        description: "JWT access token. Get it from POST /api/auth/login (or register/refresh) response body, then enter here as: Bearer <token>",
       },
     },
     schemas: {
@@ -114,13 +104,16 @@ These users exist after running the database seed. Use them to log in and try th
       },
       AuthResponse: {
         type: "object",
-        required: ["success", "accessToken", "expiresIn", "user"],
+        required: ["success", "user"],
         properties: {
           success: { type: "boolean", example: true },
-          accessToken: { type: "string", description: "JWT access token" },
-          expiresIn: { type: "integer", description: "Token TTL in seconds", example: 3600 },
           user: { $ref: "#/components/schemas/User" },
+          accessToken: {
+            type: "string",
+            description: "JWT for Authorization: Bearer header. Use in Swagger Authorize. Also set in httpOnly cookie for browser clients.",
+          },
         },
+        description: "Login, register, and refresh return this. accessToken is in the body for API/Swagger; cookies are also set for browser.",
       },
       Category: {
         type: "object",

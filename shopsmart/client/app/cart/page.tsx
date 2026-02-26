@@ -221,7 +221,7 @@ function ApiCartContent() {
             </div>
           </div>
           <Link
-            href="/orders"
+            href="/checkout"
             className="mt-6 block w-full rounded-[var(--radius)] bg-accent py-3 text-center text-base font-medium text-on-accent hover:bg-accent/90"
           >
             Proceed to Checkout

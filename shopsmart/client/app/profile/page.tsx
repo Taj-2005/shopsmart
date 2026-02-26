@@ -5,16 +5,31 @@ import { useAuth } from "@/context/auth-context";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
+import { userApi } from "@/api/user.api";
+import { toApiError } from "@/api/axios";
 
 function ProfileContent() {
   const { user } = useAuth();
   const [fullName, setFullName] = useState(user?.fullName ?? "");
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (!user?.id) return;
+    setError(null);
+    setSaving(true);
+    try {
+      await userApi.update(user.id, { fullName });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (e) {
+      const err = toApiError(e);
+      setError(err.message ?? "Failed to save");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -34,6 +49,11 @@ function ProfileContent() {
           <h2 id="profile-heading" className="font-heading text-xl font-semibold text-primary">
             Edit profile
           </h2>
+          {error && (
+            <p className="mt-2 text-sm text-[var(--color-error)]" role="alert">
+              {error}
+            </p>
+          )}
           <form onSubmit={handleSaveProfile} className="mt-6 space-y-4">
             <div>
               <label htmlFor="profile-email" className="block text-sm font-medium text-primary">
@@ -60,8 +80,8 @@ function ProfileContent() {
                 className="mt-1 block w-full rounded-[var(--radius-sm)] border border-border bg-surface px-4 py-3 text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
               />
             </div>
-            <Button type="submit" disabled={saved}>
-              {saved ? "Saved" : "Save changes"}
+            <Button type="submit" disabled={saving || saved}>
+              {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
             </Button>
           </form>
         </section>

@@ -21,9 +21,8 @@ jest.mock("next/navigation", () => ({
 }));
 
 jest.mock("@/lib/auth-token", () => ({
-  setAccessToken: jest.fn(),
-  clearAccessToken: jest.fn(),
   setOnUnauthorized: jest.fn(),
+  triggerUnauthorized: jest.fn(),
 }));
 
 function TestConsumer() {
@@ -76,8 +75,6 @@ describe("AuthContext", () => {
     const { authApi } = require("@/api/auth.api");
     authApi.login.mockResolvedValue({
       success: true,
-      accessToken: "token",
-      expiresIn: 3600,
       user: { id: "1", email: "a@b.com", fullName: "User", role: "CUSTOMER", createdAt: "2024-01-01T00:00:00Z" },
     });
 
@@ -100,8 +97,6 @@ describe("AuthContext", () => {
     const { authApi } = require("@/api/auth.api");
     const loginResponse = {
       success: true,
-      accessToken: "t",
-      expiresIn: 3600,
       user: { id: "1", email: "a@b.com", fullName: "U", role: "CUSTOMER", createdAt: "2024-01-01T00:00:00Z" },
     };
     authApi.login.mockImplementation(() => Promise.resolve(loginResponse));

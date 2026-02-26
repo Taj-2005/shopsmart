@@ -1,15 +1,14 @@
 import { Router } from "express";
+import { OrderStatus } from "@prisma/client";
 import { authenticate } from "../../middleware/authenticate";
-import { authorize } from "../../middleware/authorize";
+import { requireAdmin } from "../../middleware/authorize";
 import { prisma } from "../../config/prisma";
 import { AppError } from "../../middleware/errorHandler";
-import type { AuthRequest } from "../../middleware/authenticate";
-import { hashPassword } from "../../utils/hash";
 
 const router = Router();
 
 router.use(authenticate);
-router.use(authorize("ADMIN", "SUPER_ADMIN"));
+router.use(requireAdmin);
 
 router.get("/dashboard", async (_req, res, next) => {
   try {
@@ -90,26 +89,157 @@ router.get("/orders/stats", async (_req, res, next) => {
   }
 });
 
-router.post("/create-admin", authorize("SUPER_ADMIN"), async (req: AuthRequest, res, next) => {
+router.get("/orders", async (req, res, next) => {
   try {
-    const { email, password, fullName } = req.body;
-    if (!email || !password) return next(new AppError(400, "email and password required", "VALIDATION_ERROR"));
-    const adminRole = await prisma.role.findUnique({ where: { name: "ADMIN" } });
-    if (!adminRole) return next(new AppError(500, "ADMIN role not found", "INTERNAL_ERROR"));
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) return next(new AppError(409, "User already exists", "CONFLICT"));
-    const passwordHash = await hashPassword(password);
-    const user = await prisma.user.create({
-      data: {
-        email,
-        passwordHash,
-        fullName: fullName || email,
-        roleId: adminRole.id,
-        emailVerified: true,
+    const limit = Math.min(Number(req.query.limit) || 50, 100);
+    const status = req.query.status as string | undefined;
+    const orders = await prisma.order.findMany({
+      where: status ? { status: status as OrderStatus } : undefined,
+      include: {
+        items: { include: { product: { select: { id: true, name: true, image: true } } } },
+        user: { select: { id: true, email: true, fullName: true } },
       },
-      select: { id: true, email: true, fullName: true, role: true },
+      orderBy: { createdAt: "desc" },
+      take: limit,
     });
-    res.status(201).json({ success: true, data: user });
+    const data = orders.map((o) => ({
+      ...o,
+      subtotal: Number(o.subtotal),
+      discount: Number(o.discount),
+      shipping: Number(o.shipping),
+      total: Number(o.total),
+      items: o.items.map((i) => ({ ...i, price: Number(i.price) })),
+    }));
+    res.json({ success: true, data });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.get("/reviews", async (req, res, next) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 50, 100);
+    const status = req.query.status as string | undefined;
+    const reviews = await prisma.review.findMany({
+      where: status ? { status } : undefined,
+      include: {
+        user: { select: { id: true, fullName: true, email: true } },
+        product: { select: { id: true, name: true, slug: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+    res.json({ success: true, data: reviews });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** Sales report — Admin/Super Admin. */
+router.get("/reports/sales", async (_req, res, next) => {
+  try {
+    const byStatus = await prisma.order.groupBy({
+      by: ["status"],
+      _count: true,
+      _sum: { total: true },
+    });
+    const data = byStatus.map((s) => ({
+      status: s.status,
+      count: s._count,
+      total: s._sum.total ? Number(s._sum.total) : 0,
+    }));
+    res.json({ success: true, data });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** Revenue report — Admin/Super Admin. */
+router.get("/reports/revenue", async (_req, res, next) => {
+  try {
+    const delivered = await prisma.order.aggregate({
+      _sum: { total: true },
+      where: { status: "DELIVERED" },
+    });
+    const refunded = await prisma.order.aggregate({
+      _sum: { total: true },
+      where: { status: "REFUNDED" },
+    });
+    res.json({
+      success: true,
+      data: {
+        revenue: delivered._sum.total ? Number(delivered._sum.total) : 0,
+        refunded: refunded._sum.total ? Number(refunded._sum.total) : 0,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** Coupons CRUD — Admin/Super Admin. */
+router.get("/coupons", async (req, res, next) => {
+  try {
+    const activeOnly = req.query.active === "true";
+    const coupons = await prisma.coupon.findMany({
+      where: activeOnly ? { active: true } : undefined,
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+    const data = coupons.map((c) => ({ ...c, value: Number(c.value), minOrder: c.minOrder ? Number(c.minOrder) : null }));
+    res.json({ success: true, data });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.post("/coupons", async (req, res, next) => {
+  try {
+    const { code, type, value, minOrder, maxUses, expiresAt, active } = req.body;
+    if (!code || value == null) return next(new AppError(400, "code and value required", "VALIDATION_ERROR"));
+    const coupon = await prisma.coupon.create({
+      data: {
+        code: String(code).toUpperCase().trim(),
+        type: type === "FIXED" ? "FIXED" : "PERCENT",
+        value: Number(value),
+        minOrder: minOrder != null ? Number(minOrder) : null,
+        maxUses: maxUses != null ? Number(maxUses) : null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        active: active !== false,
+      },
+    });
+    res.status(201).json({ success: true, data: { ...coupon, value: Number(coupon.value), minOrder: coupon.minOrder ? Number(coupon.minOrder) : null } });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.patch("/coupons/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const coupon = await prisma.coupon.update({
+      where: { id },
+      data: {
+        ...(body.code != null && { code: String(body.code).toUpperCase().trim() }),
+        ...(body.type != null && { type: body.type === "FIXED" ? "FIXED" : "PERCENT" }),
+        ...(body.value != null && { value: Number(body.value) }),
+        ...(body.minOrder !== undefined && { minOrder: body.minOrder == null ? null : Number(body.minOrder) }),
+        ...(body.maxUses !== undefined && { maxUses: body.maxUses == null ? null : Number(body.maxUses) }),
+        ...(body.expiresAt !== undefined && { expiresAt: body.expiresAt ? new Date(body.expiresAt) : null }),
+        ...(body.active !== undefined && { active: !!body.active }),
+      },
+    });
+    res.json({ success: true, data: { ...coupon, value: Number(coupon.value), minOrder: coupon.minOrder ? Number(coupon.minOrder) : null } });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.delete("/coupons/:id", async (req, res, next) => {
+  try {
+    await prisma.coupon.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: "Coupon deleted" });
   } catch (e) {
     next(e);
   }

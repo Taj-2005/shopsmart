@@ -57,6 +57,7 @@ export function ShopHeader() {
   const { cartCount, wishlistCount } = useShop();
   const { user, isAuthenticated, logout } = useAuth();
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+  const isSuperAdmin = user?.role === "super_admin";
 
   const handleLogout = async () => {
     await logout();
@@ -137,6 +138,14 @@ export function ShopHeader() {
               className="text-sm font-semibold text-accent hover:underline transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
             >
               Admin
+            </Link>
+          )}
+          {isSuperAdmin && (
+            <Link
+              href="/super-admin"
+              className="text-sm font-semibold text-accent hover:underline transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-accent"
+            >
+              Super Admin
             </Link>
           )}
         </nav>

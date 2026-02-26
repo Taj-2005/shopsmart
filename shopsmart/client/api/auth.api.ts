@@ -12,10 +12,8 @@ export type AuthUser = {
   createdAt: string;
 };
 
-export type LoginResponse = {
+export type AuthResponse = {
   success: boolean;
-  accessToken: string;
-  expiresIn: number;
   user: AuthUser;
 };
 
@@ -23,17 +21,15 @@ export type MeResponse = { success: boolean; user: AuthUser };
 
 export const authApi = {
   login: (email: string, password: string) =>
-    apiClient.post<LoginResponse>("/api/auth/login", { email, password }).then((r) => r.data),
+    apiClient.post<AuthResponse>("/api/auth/login", { email, password }).then((r) => r.data),
 
   register: (data: { fullName: string; email: string; password: string; roleRequest?: string }) =>
-    apiClient.post<LoginResponse>("/api/auth/register", data).then((r) => r.data),
+    apiClient.post<AuthResponse>("/api/auth/register", data).then((r) => r.data),
 
   logout: () => apiClient.post("/api/auth/logout", {}).then((r) => r.data),
 
   refresh: () =>
-    apiClient
-      .post<LoginResponse>("/api/auth/refresh", {}, { withCredentials: true })
-      .then((r) => r.data),
+    apiClient.post<AuthResponse>("/api/auth/refresh", {}, { withCredentials: true }).then((r) => r.data),
 
   me: () => apiClient.get<MeResponse>("/api/auth/me").then((r) => r.data),
 

@@ -11,6 +11,8 @@ const NAV = [
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/reviews", label: "Reviews" },
+  { href: "/admin/coupons", label: "Coupons" },
+  { href: "/admin/reports", label: "Reports" },
   { href: "/admin/settings", label: "Settings" },
 ];
 
@@ -18,6 +20,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const isSuperAdmin = user?.role === "super_admin";
 
   const handleLogout = async () => {
     await logout();
@@ -53,6 +56,16 @@ export function AdminSidebar() {
             );
           })}
         </ul>
+        {isSuperAdmin && (
+          <div className="mt-4 border-t border-border pt-3">
+            <Link
+              href="/super-admin"
+              className="block rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-semibold text-accent hover:bg-accent/10"
+            >
+              Super Admin →
+            </Link>
+          </div>
+        )}
       </nav>
       <div className="border-t border-border p-3">
         <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
