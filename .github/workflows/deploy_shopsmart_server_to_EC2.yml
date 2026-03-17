@@ -64,6 +64,10 @@ jobs:
           SHOPSMART_DEPLOY_PATH: ${{ secrets.SHOPSMART_DEPLOY_PATH || '/opt/shopsmart' }}
           SHOPSMART_SERVER_ENV: ${{ secrets.SHOPSMART_SERVER_ENV }}
         run: |
+          DEPLOY_PATH="${SHOPSMART_DEPLOY_PATH:-/opt/shopsmart}"
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
+          BRANCH="${GITHUB_REF_NAME}"
+
           if [ -z "${SHOPSMART_SERVER_ENV:-}" ]; then
             echo "[ERROR] Missing secret SHOPSMART_SERVER_ENV (server .env contents)."
             exit 1
@@ -73,7 +77,9 @@ jobs:
           printf "%s" "$SHOPSMART_SERVER_ENV" > /tmp/shopsmart-server.env
           scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem /tmp/shopsmart-server.env "$EC2_USER@$EC2_HOST:/tmp/shopsmart-server.env"
 
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem "$EC2_USER@$EC2_HOST" <<EOF
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem \
+            "$EC2_USER@$EC2_HOST" \
+            "DEPLOY_PATH='$DEPLOY_PATH' REPO_URL='$REPO_URL' BRANCH='$BRANCH' bash -s" <<'EOF'
           set -euo pipefail
 
           # Ensure base tools exist
@@ -92,10 +98,6 @@ jobs:
           if ! command -v pm2 >/dev/null 2>&1; then
             sudo npm install -g pm2
           fi
-
-          DEPLOY_PATH="${SHOPSMART_DEPLOY_PATH}"
-          REPO_URL="https://github.com/${{ github.repository }}.git"
-          BRANCH="${{ github.ref_name }}"
 
           sudo mkdir -p "$DEPLOY_PATH"
           sudo chown -R "$USER":"$USER" "$DEPLOY_PATH"
