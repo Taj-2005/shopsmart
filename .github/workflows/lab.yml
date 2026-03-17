@@ -27,7 +27,7 @@ jobs:
           echo "City: ${{ github.event.inputs.city }}"
           echo "Country: ${{ github.event.inputs.country }}"
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: List files in the repository
         run: ls -la
   weather:
