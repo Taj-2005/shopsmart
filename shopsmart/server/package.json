@@ -7,7 +7,6 @@
     "build": "tsc -p tsconfig.build.json",
     "dev": "ts-node-dev --respawn src/server.ts",
     "start": "node dist/src/server.js",
-    "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
