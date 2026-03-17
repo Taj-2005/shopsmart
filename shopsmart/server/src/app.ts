@@ -25,6 +25,8 @@ const publicDir = path.join(__dirname, "..", "..", "public");
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    // Swagger UI relies on inline scripts/styles; Helmet's default CSP can blank the page.
+    contentSecurityPolicy: false,
   })
 );
 app.use(
