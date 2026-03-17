@@ -4,6 +4,8 @@ import { apiClient } from "./axios";
 
 export type ApiResponse<T> = { success: boolean; data: T };
 
+export type ShippingProvider = { id?: string; name: string; enabled?: boolean };
+
 export const superAdminApi = {
   createAdmin: (data: { email: string; password: string; fullName?: string }) =>
     apiClient.post<ApiResponse<{ id: string; email: string; fullName: string; role: unknown }>>("/api/super-admin/admins", data).then((r) => r.data),
@@ -30,9 +32,9 @@ export const superAdminApi = {
     apiClient.patch<ApiResponse<{ message: string }>>("/api/super-admin/config/payment", value).then((r) => r.data),
 
   getShippingProviders: () =>
-    apiClient.get<ApiResponse<unknown[]>>("/api/super-admin/config/shipping-providers").then((r) => r.data),
+    apiClient.get<ApiResponse<ShippingProvider[]>>("/api/super-admin/config/shipping-providers").then((r) => r.data),
 
-  updateShippingProviders: (value: unknown[]) =>
+  updateShippingProviders: (value: ShippingProvider[]) =>
     apiClient.patch<ApiResponse<{ message: string }>>("/api/super-admin/config/shipping-providers", value).then((r) => r.data),
 
   getFeatureFlags: () =>
@@ -40,4 +42,5 @@ export const superAdminApi = {
 
   updateFeatureFlags: (value: Record<string, boolean>) =>
     apiClient.patch<ApiResponse<{ message: string }>>("/api/super-admin/config/feature-flags", value).then((r) => r.data),
+
 };
