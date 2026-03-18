@@ -4,6 +4,7 @@
   "description": "ShopSmart e-commerce API",
   "main": "dist/src/server.js",
   "scripts": {
+    "postinstall": "prisma generate",
     "build": "tsc -p tsconfig.build.json",
     "dev": "ts-node-dev --respawn src/server.ts",
     "start": "node dist/src/server.js",
