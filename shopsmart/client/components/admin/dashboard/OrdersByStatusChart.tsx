@@ -60,10 +60,13 @@ function OrdersByStatusChartComponent({ data, loading }: OrdersByStatusChartProp
           <Tooltip
             contentStyle={TOOLTIP_STYLE.contentStyle}
             labelStyle={TOOLTIP_STYLE.labelStyle}
-            formatter={(value: number, name: string) => {
-              if (name === "count") return [value, "Orders"];
-              if (name === "totalRevenue") return [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"];
-              return [value, name];
+            formatter={(value, name) => {
+              const numericValue = typeof value === "number" ? value : Number(value ?? 0);
+              const key = String(name);
+
+              if (key === "count") return [numericValue, "Orders"];
+              if (key === "totalRevenue") return [`₹${numericValue.toLocaleString("en-IN")}`, "Revenue"];
+              return [numericValue, key];
             }}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />

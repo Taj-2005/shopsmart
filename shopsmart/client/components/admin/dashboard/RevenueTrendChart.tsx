@@ -19,7 +19,8 @@ type RevenueTrendChartProps = {
   loading?: boolean;
 };
 
-function formatAxisDate(dateStr: string) {
+function formatAxisDate(label: unknown) {
+  const dateStr = typeof label === "string" ? label : String(label ?? "");
   const d = new Date(dateStr);
   return d.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
 }
@@ -72,11 +73,14 @@ function RevenueTrendChartComponent({ data, loading }: RevenueTrendChartProps) {
             contentStyle={TOOLTIP_STYLE.contentStyle}
             labelStyle={TOOLTIP_STYLE.labelStyle}
             labelFormatter={formatAxisDate}
-            formatter={(value: number, name: string) => {
-              if (name === "revenue") return [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"];
-              if (name === "orders") return [value, "Orders"];
-              if (name === "users") return [value, "New users"];
-              return [value, name];
+            formatter={(value, name) => {
+              const numericValue = typeof value === "number" ? value : Number(value ?? 0);
+              const key = String(name);
+
+              if (key === "revenue") return [`₹${numericValue.toLocaleString("en-IN")}`, "Revenue"];
+              if (key === "orders") return [numericValue, "Orders"];
+              if (key === "users") return [numericValue, "New users"];
+              return [numericValue, key];
             }}
           />
           <Legend

@@ -51,10 +51,20 @@ function CategoryDistributionChartComponent({ data, loading }: CategoryDistribut
           <Tooltip
             contentStyle={TOOLTIP_STYLE.contentStyle}
             labelStyle={TOOLTIP_STYLE.labelStyle}
-            formatter={(value: number, name: string, props: { payload?: { count: number } }) => [
-              `${value}% (${props.payload?.count?.toLocaleString("en-IN") ?? 0} orders)`,
-              name,
-            ]}
+            formatter={(value, name, item) => {
+              const percent = typeof value === "number" ? value : Number(value ?? 0);
+              const countRaw =
+                item && typeof item === "object" && "payload" in item
+                  ? // Recharts keeps the original datum on `payload`
+                    (item.payload as { count?: number } | undefined)?.count
+                  : undefined;
+              const count = typeof countRaw === "number" ? countRaw : 0;
+
+              return [
+                `${percent}% (${count.toLocaleString("en-IN")} orders)`,
+                String(name),
+              ];
+            }}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
         </PieChart>
