@@ -2,11 +2,6 @@ name: Deploy ShopSmart Server to AWS EC2
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "shopsmart/server/**"
-      - ".github/workflows/deploy_shopsmart_server_to_EC2.yml"
   pull_request:
     branches: [main, develop]
     paths:
