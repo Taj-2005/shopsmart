@@ -1,5 +1,6 @@
 import path from "path";
 import express from "express";
+import fs from "fs";
 import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -138,7 +139,19 @@ app.use("/api-docs", swaggerUi.setup(swaggerSpec as swaggerUi.JsonObject, swagge
 app.use("/api", routes);
 
 // Static files (after API routes to avoid conflicts)
-app.use("/", express.static(publicDir));
+// Only serve static files if the directory exists
+if (fs.existsSync(publicDir)) {
+  app.use("/", express.static(publicDir));
+}
+
+// 404 handler for unmatched routes
+app.use((_req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Not found",
+    code: "NOT_FOUND",
+  });
+});
 
 // Error handler (last)
 app.use(errorHandler);
