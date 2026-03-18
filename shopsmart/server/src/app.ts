@@ -46,7 +46,8 @@ app.use(
   })
 );
 app.use(express.json({ limit: "10mb" }));
-app.use("/", express.static(publicDir));
+
+// API docs routes must be defined BEFORE the catch-all static middleware
 app.get("/icon.svg", (_req, res) => {
   res.type("image/svg+xml");
   res.set("Cache-Control", "public, max-age=86400");
@@ -61,7 +62,9 @@ app.get("/api-docs/architecture", (_req, res) => {
   res.set("Cache-Control", "public, max-age=3600");
   res.sendFile(path.join(publicDir, "architecture.html"));
 });
+
 const frontendUrl = env.FRONTEND_URL.replace(/\/$/, "");
+
 // Swagger UI custom assets with explicit MIME types
 app.get("/api-docs/swagger-back-link.js", (_req, res) => {
   res.type("application/javascript");
@@ -87,21 +90,7 @@ app.get("/api-docs/swagger-back-link.js", (_req, res) => {
   `.trim());
 });
 
-app.use("/api", routes);
-
-// Middleware to ensure Swagger UI assets are served with correct MIME types
-app.use("/api-docs", (req, res, next) => {
-  // Set proper MIME types for swagger-ui static assets
-  const url = req.url;
-  if (url.endsWith(".css")) {
-    res.type("text/css; charset=utf-8");
-  } else if (url.endsWith(".js")) {
-    res.type("application/javascript; charset=utf-8");
-  }
-  next();
-});
-
-// Swagger UI static files
+// Swagger UI static files and setup - before catch-all static
 app.use("/api-docs", swaggerUi.serve);
 
 const swaggerOptions: swaggerUi.SwaggerUiOptions = {
@@ -144,6 +133,14 @@ const swaggerOptions: swaggerUi.SwaggerUiOptions = {
   },
 };
 app.use("/api-docs", swaggerUi.setup(swaggerSpec as swaggerUi.JsonObject, swaggerOptions));
+
+// API routes
+app.use("/api", routes);
+
+// Static files (after API routes to avoid conflicts)
+app.use("/", express.static(publicDir));
+
+// Error handler (last)
 app.use(errorHandler);
 
 export default app;
