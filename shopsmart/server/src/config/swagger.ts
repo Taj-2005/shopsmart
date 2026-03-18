@@ -10,9 +10,25 @@ const spec: Record<string, any> = {
     title: "ShopSmart API",
     version: "1.0.0",
     description: `
+---
+
+### Architecture diagram
+
+ [→ Open architecture diagram](/api-docs/architecture)
+
+_Monorepo structure, request lifecycle, RBAC, and tech stack._
+
+---
+
 ## Overview
 
 This is the **ShopSmart API**: the backend for the ShopSmart eCommerce app. It is a REST API: you send HTTP requests (GET, POST, PATCH, DELETE) to the URLs below; responses are JSON.
+
+**Live deployment:**
+
+- API docs (this page): \`https://shopsmart-r8p3.onrender.com/api-docs\`
+- Backend API base: \`https://shopsmart-r8p3.onrender.com\`
+- Frontend: \`https://shopsmart-web.vercel.app\`
 
 **What each section does:**
 
@@ -56,6 +72,7 @@ Endpoints that require authentication show a lock icon. Use **Authorize** and en
     `.trim(),
   },
   servers: [
+    { url: "https://shopsmart-r8p3.onrender.com", description: "Production (Render)" },
     { url: "http://localhost:4000", description: "Local development" },
     { url: "/", description: "Current host" },
   ],
