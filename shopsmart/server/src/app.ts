@@ -62,6 +62,7 @@ app.get("/api-docs/architecture", (_req, res) => {
   res.sendFile(path.join(publicDir, "architecture.html"));
 });
 const frontendUrl = env.FRONTEND_URL.replace(/\/$/, "");
+// Swagger UI custom assets with explicit MIME types
 app.get("/api-docs/swagger-back-link.js", (_req, res) => {
   res.type("application/javascript");
   res.set("Cache-Control", "public, max-age=300");
@@ -85,7 +86,24 @@ app.get("/api-docs/swagger-back-link.js", (_req, res) => {
 })();
   `.trim());
 });
+
 app.use("/api", routes);
+
+// Middleware to ensure Swagger UI assets are served with correct MIME types
+app.use("/api-docs", (req, res, next) => {
+  // Set proper MIME types for swagger-ui static assets
+  const url = req.url;
+  if (url.endsWith(".css")) {
+    res.type("text/css; charset=utf-8");
+  } else if (url.endsWith(".js")) {
+    res.type("application/javascript; charset=utf-8");
+  }
+  next();
+});
+
+// Swagger UI static files
+app.use("/api-docs", swaggerUi.serve);
+
 const swaggerOptions: swaggerUi.SwaggerUiOptions = {
   customSiteTitle: "ShopSmart API",
   customfavIcon: "/api-docs/icon.svg",
@@ -125,7 +143,7 @@ const swaggerOptions: swaggerUi.SwaggerUiOptions = {
     persistAuthorization: true,
   },
 };
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec as swaggerUi.JsonObject, swaggerOptions));
+app.use("/api-docs", swaggerUi.setup(swaggerSpec as swaggerUi.JsonObject, swaggerOptions));
 app.use(errorHandler);
 
 export default app;
