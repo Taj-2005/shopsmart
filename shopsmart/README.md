@@ -240,6 +240,7 @@ Request
 | --------------- | --- |
 | **Swagger (API docs)** | [https://shopsmart-r8p3.onrender.com/api-docs/](https://shopsmart-r8p3.onrender.com/api-docs/) |
 | **Backend API base**   | [https://shopsmart-r8p3.onrender.com](https://shopsmart-r8p3.onrender.com) |
+| **Backend API base (AWS EC2)** | [http://54.205.13.197:4000/](http://54.205.13.197:4000/) |
 | **Frontend**           | [https://shopsmart-web.vercel.app/](https://shopsmart-web.vercel.app/) |
 
 Interactive Swagger (OpenAPI 3) docs at the link above cover:
@@ -250,6 +251,8 @@ Interactive Swagger (OpenAPI 3) docs at the link above cover:
 - Error codes and validation rules
 
 > For local development, use `http://localhost:4000` (API) and `http://localhost:3000` (frontend).
+>
+> The AWS EC2 backend is deployed via `.github/workflows/deploy_shopsmart_server_to_EC2.yml` and runs on `http://54.205.13.197:4000/`.
 
 ---
 
@@ -284,6 +287,7 @@ npm run dev                    # Start development server
 | ------------ | ------------------------------------------------------------------ |
 | API Base (local) | `http://localhost:4000`                                        |
 | API Base (prod)  | [https://shopsmart-r8p3.onrender.com](https://shopsmart-r8p3.onrender.com) |
+| API Base (AWS EC2) | [http://54.205.13.197:4000/](http://54.205.13.197:4000/) |
 | Health Check    | `http://localhost:4000/api/health` or `…/api/health` on prod   |
 | Swagger Docs (prod) | [https://shopsmart-r8p3.onrender.com/api-docs/](https://shopsmart-r8p3.onrender.com/api-docs/) |
 | Frontend (prod) | [https://shopsmart-web.vercel.app/](https://shopsmart-web.vercel.app/) |
