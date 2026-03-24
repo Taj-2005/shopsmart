@@ -11,6 +11,11 @@ If workflows fail with database or auth errors, the most common cause is missing
 | `DOCKERHUB_USERNAME` | Docker Hub username for image push workflows. |
 | `DOCKERHUB_TOKEN` | Docker Hub access token (PAT/password) for image push workflows. |
 | `SHOPSMART_SERVER_ENV` | Full multiline contents of `shopsmart/server/.env`, used in deploy/build workflows. |
+| `EC2_SSH_KEY` | Private SSH key for EC2 (PEM). Used by EC2 deploy workflows. |
+| `EC2_HOST` | EC2 public hostname or IP. |
+| `EC2_USER` | SSH user (optional; defaults to `ubuntu` in workflows). |
+
+**Private Docker Hub images:** set `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`; the Docker-on-EC2 workflow uses them for `docker login` on the instance before `docker pull`.
 
 ## Variables (recommended)
 

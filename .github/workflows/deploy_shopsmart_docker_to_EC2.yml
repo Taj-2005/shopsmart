@@ -1,0 +1,73 @@
+name: Deploy ShopSmart Server (Docker) to EC2
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Docker image to run (Docker Hub or full registry path)"
+        required: true
+        default: "tajuddinshaik/shopsmart-server:distroless"
+      host_port:
+        description: "Host port exposed on EC2 (maps to container port 4000)"
+        required: true
+        default: "4000"
+
+jobs:
+  deploy-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+
+      - name: Copy env and run container on EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER || 'ubuntu' }}
+          SHOPSMART_SERVER_ENV: ${{ secrets.SHOPSMART_SERVER_ENV }}
+          DOCKER_IMAGE: ${{ inputs.image }}
+          HOST_PORT: ${{ inputs.host_port }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -z "${SHOPSMART_SERVER_ENV:-}" ]; then
+            echo "[ERROR] Missing secret SHOPSMART_SERVER_ENV (full server .env contents)."
+            exit 1
+          fi
+          if [ -z "${EC2_HOST:-}" ]; then
+            echo "[ERROR] Missing secret EC2_HOST."
+            exit 1
+          fi
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem \
+            "$EC2_USER@$EC2_HOST" \
+            "rm -f /tmp/dhub_pass"
+
+          printf "%s" "$SHOPSMART_SERVER_ENV" > /tmp/shopsmart-server.env
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem /tmp/shopsmart-server.env \
+            "$EC2_USER@$EC2_HOST:/tmp/shopsmart-server.env"
+
+          if [ -n "${DOCKERHUB_USERNAME:-}" ] && [ -n "${DOCKERHUB_TOKEN:-}" ]; then
+            printf '%s' "$DOCKERHUB_TOKEN" > /tmp/dhub_pass
+            scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem /tmp/dhub_pass \
+              "$EC2_USER@$EC2_HOST:/tmp/dhub_pass"
+            rm -f /tmp/dhub_pass
+          fi
+
+          IMG_Q=$(printf '%q' "$DOCKER_IMAGE")
+          PORT_Q=$(printf '%q' "$HOST_PORT")
+          USER_Q=$(printf '%q' "${DOCKERHUB_USERNAME:-}")
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem \
+            "$EC2_USER@$EC2_HOST" \
+            "export IMAGE=${IMG_Q} HOST_PORT=${PORT_Q} DOCKERHUB_USERNAME=${USER_Q}; bash -s" \
+            < scripts/deploy-shopsmart-docker-ec2-remote.sh
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/ec2_key.pem

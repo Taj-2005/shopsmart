@@ -2,12 +2,6 @@ name: Docker Build and Push ShopSmart Server
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "shopsmart/server/**"
-      - ".github/workflows/docker_build_and_push_shopsmart_server.yml"
 
 jobs:
   docker:
