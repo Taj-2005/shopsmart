@@ -8,6 +8,9 @@ If workflows fail with database or auth errors, the most common cause is missing
 | Name           | Description                    |
 |----------------|--------------------------------|
 | `DATABASE_URL` | Full DB URL (e.g. MySQL). Used by unit, integration, and e2e. |
+| `DOCKERHUB_USERNAME` | Docker Hub username for image push workflows. |
+| `DOCKERHUB_TOKEN` | Docker Hub access token (PAT/password) for image push workflows. |
+| `SHOPSMART_SERVER_ENV` | Full multiline contents of `shopsmart/server/.env`, used in deploy/build workflows. |
 
 ## Variables (recommended)
 
