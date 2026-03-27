@@ -25,14 +25,17 @@ ENV NODE_ENV=production
 # Runtime OpenSSL for Prisma engine
 RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
+# Run as non-root user
+RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
+
 # Copy compiled app and production deps
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/public ./public
-COPY package*.json ./
 
 # App default port
 EXPOSE 4000
 
-CMD ["npm", "start"]
+USER nodejs
+CMD ["node", "dist/src/server.js"]
