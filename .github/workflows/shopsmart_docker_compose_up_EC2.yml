@@ -1,0 +1,112 @@
+name: ShopSmart Docker Compose Up (EC2)
+
+on:
+  workflow_dispatch:
+    inputs:
+      public_api_url:
+        description: "Browser-facing API base URL baked into the Next.js client (e.g. http://54.205.13.197:4000). Leave empty to use http://<EC2_HOST>:4000 from secrets."
+        required: false
+        default: ""
+      branch:
+        description: "Git branch to checkout on EC2"
+        required: false
+        default: ""
+
+jobs:
+  compose-up:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+
+      - name: Sync env and docker compose up on EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER || 'ubuntu' }}
+          SHOPSMART_DEPLOY_PATH: ${{ secrets.SHOPSMART_DEPLOY_PATH || '/opt/shopsmart' }}
+          SHOPSMART_SERVER_ENV: ${{ secrets.SHOPSMART_SERVER_ENV }}
+          PUBLIC_API_URL_INPUT: ${{ inputs.public_api_url }}
+          BRANCH_INPUT: ${{ inputs.branch }}
+        run: |
+          if [ -z "${SHOPSMART_SERVER_ENV:-}" ]; then
+            echo "[ERROR] Missing secret SHOPSMART_SERVER_ENV."
+            exit 1
+          fi
+          if [ -z "${EC2_HOST:-}" ]; then
+            echo "[ERROR] Missing secret EC2_HOST."
+            exit 1
+          fi
+
+          if [ -n "${PUBLIC_API_URL_INPUT:-}" ]; then
+            NEXT_PUBLIC_API_URL="$PUBLIC_API_URL_INPUT"
+          else
+            NEXT_PUBLIC_API_URL="http://${EC2_HOST}:4000"
+          fi
+
+          if [ -n "${BRANCH_INPUT:-}" ]; then
+            BRANCH="$BRANCH_INPUT"
+          else
+            BRANCH="${GITHUB_REF_NAME:-main}"
+          fi
+
+          DEPLOY_PATH="${SHOPSMART_DEPLOY_PATH:-/opt/shopsmart}"
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
+
+          printf "%s" "$SHOPSMART_SERVER_ENV" > /tmp/shopsmart-server.env
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem /tmp/shopsmart-server.env \
+            "$EC2_USER@$EC2_HOST:/tmp/shopsmart-server.env"
+
+          DP_Q=$(printf '%q' "$DEPLOY_PATH")
+          BR_Q=$(printf '%q' "$BRANCH")
+          RU_Q=$(printf '%q' "$REPO_URL")
+          API_Q=$(printf '%q' "$NEXT_PUBLIC_API_URL")
+
+          {
+            echo 'set -euo pipefail'
+            echo ': "${DEPLOY_PATH:?Set DEPLOY_PATH (repo root on EC2)}"'
+            echo ': "${BRANCH:?Set BRANCH}"'
+            echo ': "${REPO_URL:?Set REPO_URL}"'
+            echo ': "${NEXT_PUBLIC_API_URL:?Set NEXT_PUBLIC_API_URL (browser API base, e.g. http://EC2_IP:4000)}"'
+            echo 'COMPOSE_DIR="${DEPLOY_PATH}/shopsmart"'
+            echo 'if ! command -v git >/dev/null 2>&1; then'
+            echo '  sudo apt-get update -y'
+            echo '  sudo apt-get install -y git'
+            echo 'fi'
+            echo 'if ! command -v docker >/dev/null 2>&1; then'
+            echo '  sudo apt-get update -y'
+            echo '  sudo apt-get install -y docker.io'
+            echo '  sudo systemctl enable --now docker'
+            echo 'fi'
+            echo 'if ! sudo docker compose version >/dev/null 2>&1; then'
+            echo '  sudo apt-get update -y'
+            echo '  sudo apt-get install -y docker-compose-plugin 2>/dev/null || sudo apt-get install -y docker-compose-v2 2>/dev/null || { echo "[ERROR] Install Docker Compose v2 (docker compose) on this host."; exit 1; }'
+            echo 'fi'
+            echo 'sudo mkdir -p "$DEPLOY_PATH"'
+            echo 'sudo chown -R "$USER":"$USER" "$DEPLOY_PATH"'
+            echo 'if [ ! -d "${DEPLOY_PATH}/.git" ]; then'
+            echo '  git clone "$REPO_URL" "$DEPLOY_PATH"'
+            echo 'fi'
+            echo 'cd "$DEPLOY_PATH"'
+            echo 'git fetch --all --prune'
+            echo 'git checkout "$BRANCH"'
+            echo 'git pull --ff-only origin "$BRANCH"'
+            echo 'install -m 600 /tmp/shopsmart-server.env "${COMPOSE_DIR}/server/.env"'
+            echo 'if command -v pm2 >/dev/null 2>&1; then'
+            echo '  pm2 stop shopsmart-api 2>/dev/null || true'
+            echo 'fi'
+            echo 'sudo docker rm -f shopsmart-api-docker shopsmart-server shopsmart-client 2>/dev/null || true'
+            echo 'export NEXT_PUBLIC_API_URL'
+            echo 'cd "$COMPOSE_DIR"'
+            echo 'sudo docker compose build --pull'
+            echo 'sudo docker compose up -d'
+            echo 'echo "[OK] ShopSmart stack is up (client :3000, server :4000). NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}"'
+          } | ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem \
+            "$EC2_USER@$EC2_HOST" \
+            "export DEPLOY_PATH=${DP_Q} BRANCH=${BR_Q} REPO_URL=${RU_Q} NEXT_PUBLIC_API_URL=${API_Q}; bash -s"
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/ec2_key.pem

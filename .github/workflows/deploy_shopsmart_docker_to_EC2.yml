@@ -16,9 +16,6 @@ jobs:
   deploy-docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
@@ -63,10 +60,39 @@ jobs:
           PORT_Q=$(printf '%q' "$HOST_PORT")
           USER_Q=$(printf '%q' "${DOCKERHUB_USERNAME:-}")
 
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem \
+          {
+            echo 'set -euo pipefail'
+            echo 'CONTAINER_NAME="shopsmart-api-docker"'
+            echo 'IMAGE="${IMAGE:?Set IMAGE (docker image ref)}"'
+            echo 'HOST_PORT="${HOST_PORT:?Set HOST_PORT}"'
+            echo 'if ! command -v docker >/dev/null 2>&1; then'
+            echo '  sudo apt-get update -y'
+            echo '  sudo apt-get install -y docker.io'
+            echo '  sudo systemctl enable --now docker'
+            echo 'fi'
+            echo 'if [ -f /tmp/dhub_pass ]; then'
+            echo '  chmod 600 /tmp/dhub_pass'
+            echo '  : "${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME when using /tmp/dhub_pass}"'
+            echo '  sudo docker login -u "$DOCKERHUB_USERNAME" --password-stdin < /tmp/dhub_pass'
+            echo '  rm -f /tmp/dhub_pass'
+            echo 'fi'
+            echo 'sudo install -m 600 /tmp/shopsmart-server.env /opt/shopsmart-server.env'
+            echo 'sudo docker rm -f "$CONTAINER_NAME" 2>/dev/null || true'
+            echo 'if command -v pm2 >/dev/null 2>&1; then'
+            echo '  pm2 stop shopsmart-api 2>/dev/null || true'
+            echo 'fi'
+            echo 'sudo docker pull "$IMAGE"'
+            echo 'sudo docker run -d \'
+            echo '  --name "$CONTAINER_NAME" \'
+            echo '  --restart unless-stopped \'
+            echo '  -p "${HOST_PORT}:4000" \'
+            echo '  --env-file /opt/shopsmart-server.env \'
+            echo '  "$IMAGE"'
+            echo 'echo "[OK] Running ${IMAGE} on host port ${HOST_PORT} -> container 4000"'
+            echo 'rm -f /tmp/dhub_pass'
+          } | ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem \
             "$EC2_USER@$EC2_HOST" \
-            "export IMAGE=${IMG_Q} HOST_PORT=${PORT_Q} DOCKERHUB_USERNAME=${USER_Q}; bash -s" \
-            < scripts/deploy-shopsmart-docker-ec2-remote.sh
+            "export IMAGE=${IMG_Q} HOST_PORT=${PORT_Q} DOCKERHUB_USERNAME=${USER_Q}; bash -s"
 
       - name: Cleanup SSH key
         if: always()

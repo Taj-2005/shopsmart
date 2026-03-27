@@ -15,7 +15,8 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:4000
+        # Browser-facing API URL at build time (set in CI/EC2, e.g. http://YOUR_EC2_IP:4000)
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
     container_name: shopsmart-client
     ports:
       - "3000:3000"
