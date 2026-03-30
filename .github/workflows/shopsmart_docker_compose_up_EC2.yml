@@ -15,6 +15,8 @@ on:
 jobs:
   compose-up:
     runs-on: ubuntu-latest
+    # Next.js + server images can take a long time on a small EC2 instance
+    timeout-minutes: 180
     steps:
       - name: Setup SSH key
         run: |
@@ -40,6 +42,15 @@ jobs:
             exit 1
           fi
 
+          # Keep SSH alive through long docker/Next builds (avoids "Broken pipe" / exit 255)
+          SSH_OPTS=(
+            -o StrictHostKeyChecking=no
+            -o ServerAliveInterval=30
+            -o ServerAliveCountMax=240
+            -o TCPKeepAlive=yes
+            -i ~/.ssh/ec2_key.pem
+          )
+
           if [ -n "${PUBLIC_API_URL_INPUT:-}" ]; then
             NEXT_PUBLIC_API_URL="$PUBLIC_API_URL_INPUT"
           else
@@ -56,7 +67,7 @@ jobs:
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
 
           printf "%s" "$SHOPSMART_SERVER_ENV" > /tmp/shopsmart-server.env
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem /tmp/shopsmart-server.env \
+          scp "${SSH_OPTS[@]}" /tmp/shopsmart-server.env \
             "$EC2_USER@$EC2_HOST:/tmp/shopsmart-server.env"
 
           DP_Q=$(printf '%q' "$DEPLOY_PATH")
@@ -99,11 +110,14 @@ jobs:
             echo 'fi'
             echo 'sudo docker rm -f shopsmart-api-docker shopsmart-server shopsmart-client 2>/dev/null || true'
             echo 'export NEXT_PUBLIC_API_URL'
+            echo '# Avoid Compose Bake/buildx path when buildx is not installed'
+            echo 'export COMPOSE_BAKE=false'
             echo 'cd "$COMPOSE_DIR"'
-            echo 'sudo docker compose build --pull'
+            echo 'echo "[INFO] docker compose build starting (Next.js can take 20–60+ minutes on small instances)..."'
+            echo 'sudo docker compose build --pull --progress plain'
             echo 'sudo docker compose up -d'
             echo 'echo "[OK] ShopSmart stack is up (client :3000, server :4000). NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}"'
-          } | ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem \
+          } | ssh "${SSH_OPTS[@]}" \
             "$EC2_USER@$EC2_HOST" \
             "export DEPLOY_PATH=${DP_Q} BRANCH=${BR_Q} REPO_URL=${RU_Q} NEXT_PUBLIC_API_URL=${API_Q}; bash -s"
 

@@ -2,16 +2,17 @@ FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 
 # Next.js 16 supports Node 20.9+; Node 22 is LTS and fully compatible.
-ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Install dependencies
+# Do NOT set NODE_ENV=production before `npm ci`. With NODE_ENV=production, npm
+# omits devDependencies (TypeScript, Tailwind, types, etc.). Next then loads
+# `next.config.ts`, triggers "Installing TypeScript...", and pulls hundreds of
+# packages during `next build` — much slower than a single `npm ci`.
 COPY package*.json ./
 RUN npm ci
 
-# Build Next.js app
 COPY . .
 RUN npm run build
 
