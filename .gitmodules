@@ -1,0 +1,3 @@
+[submodule "docker-compose-tutorial"]
+	path = docker-compose-tutorial
+	url = https://github.com/balwa/docker-compose-tutorial
