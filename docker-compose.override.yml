@@ -1,0 +1,40 @@
+# ============================================================
+#  docker-compose.override.yml
+#
+#  Docker Compose automatically merges this file on top of
+#  docker-compose.yml when you run `docker compose up`.
+#
+#  Use it for dev conveniences you never want in production:
+#    - Hot reload via source volume mount
+#    - Exposed ports for direct debugging
+#    - Verbose logging
+#
+#  To run WITHOUT this file (simulate prod):
+#    docker compose -f docker-compose.yml up
+# ============================================================
+
+services:
+
+  ui:
+    # Mount source so Django's auto-reloader picks up template/view changes
+    volumes:
+      - ./ui:/app
+    # Expose directly for debugging without going through Nginx
+    ports:
+      - "8001:8001"
+
+  api:
+    # Mount source code into the container so edits are reflected
+    # instantly without rebuilding the image.
+    volumes:
+      - ./backend:/app
+    # Override the production CMD with uvicorn's --reload flag
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    # Expose the API port directly so you can test without Nginx
+    ports:
+      - "8000:8000"
+
+  db:
+    # Expose Postgres so you can connect with TablePlus / psql locally
+    ports:
+      - "5432:5432"

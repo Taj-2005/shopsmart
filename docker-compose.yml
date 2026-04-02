@@ -1,0 +1,154 @@
+# ============================================================
+#  docker-compose.yml — Notes API (Docker Compose demo)
+#
+#  Services
+#  --------
+#  nginx   → public entry point (port 80)
+#  ui      → Django web UI (notes browser)
+#  api     → FastAPI application
+#  db      → PostgreSQL database
+#  redis   → in-memory cache
+#  adminer → database browser UI (dev convenience)
+#
+#  Key concepts demonstrated
+#  -------------------------
+#  - Service-to-service DNS (hostname == service name)
+#  - depends_on + healthcheck (startup ordering)
+#  - Named volumes (data survives `docker compose down`)
+#  - Custom networks (isolate who can talk to whom)
+#  - env_file (keep secrets out of this file)
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # NGINX — reverse proxy
+  # Students only ever hit port 80; the api port is internal.
+  # ----------------------------------------------------------
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"               # host:container — only Nginx is exposed
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      ui:
+        condition: service_healthy   # wait for both backends before accepting traffic
+    networks:
+      - frontend
+
+  # ----------------------------------------------------------
+  # UI — Django web interface
+  # Reads the same Postgres database as the API service.
+  # Both services share one `notes` table — a great example of
+  # multiple services pointing at the same data store.
+  # ----------------------------------------------------------
+  ui:
+    build: ./ui
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - frontend    # reachable by nginx
+      - backend     # needs to reach db
+
+  # ----------------------------------------------------------
+  # API — FastAPI application
+  # Built from ./backend/Dockerfile (multi-stage build).
+  # Not exposed to the host; only reachable through Nginx.
+  # ----------------------------------------------------------
+  api:
+    build: ./backend
+    env_file: .env            # loads DATABASE_URL, REDIS_HOST, etc.
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - frontend    # reachable by nginx
+      - backend     # reachable by db and redis
+
+  # ----------------------------------------------------------
+  # PostgreSQL — primary data store
+  # Named volume keeps data between `docker compose down` runs.
+  # No ports exposed — only the api service can reach it.
+  # ----------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    env_file: .env            # POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB
+    volumes:
+      - db_data:/var/lib/postgresql/data   # named volume = persistent storage
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  # ----------------------------------------------------------
+  # Redis — caching layer
+  # No persistence needed here; cache is ephemeral by design.
+  # Not exposed to the host — internal service only.
+  # ----------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend
+
+  # ----------------------------------------------------------
+  # Adminer — lightweight database browser
+  # Useful in dev to inspect tables without installing pgAdmin.
+  # Accessing http://localhost:8080 and log in with .env creds.
+  # ----------------------------------------------------------
+  adminer:
+    image: adminer:4
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+
+# ----------------------------------------------------------
+# VOLUMES
+# Named volumes are managed by Docker (not a host path).
+# They persist across `docker compose down` but are removed
+# with `docker compose down -v`.
+# ----------------------------------------------------------
+volumes:
+  db_data:
+
+# ----------------------------------------------------------
+# NETWORKS
+# Two isolated networks enforce the security boundary:
+#   frontend → nginx can talk to api
+#   backend  → api can talk to db and redis
+# db and redis are NOT on the frontend network, so nginx
+# cannot reach them directly — even by accident.
+# ----------------------------------------------------------
+networks:
+  frontend:
+  backend:
