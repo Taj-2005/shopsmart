@@ -17,7 +17,7 @@
 terraform {
   required_providers {
     aws = {
-      source  = "______"       # <-- Fill in the provider source (hint: hashicorp/???)
+      source  = "hashicorp/aws"       # <-- Fill in the provider source (hint: hashicorp/???)
       version = "~> 5.0"       # Use any 5.x version
     }
   }
@@ -32,7 +32,7 @@ terraform {
 # Common regions: us-east-1, us-west-2, eu-west-1
 
 provider "aws" {
-  region = "______"            # <-- Fill in an AWS region (hint: us-east-1)
+  region = "us-east-1"            # <-- Fill in an AWS region (hint: us-east-1)
 }
 
 # ---------------------------
@@ -50,5 +50,5 @@ provider "aws" {
 # Replace <YOURNAME> with your actual name or handle.
 
 resource "aws_s3_bucket" "shopsmart_logs" {
-  bucket = "______"            # <-- Fill in a unique bucket name (hint: shopsmart-logs-<YOURNAME>)
+  bucket = "shopsmart-logs-taj"            # <-- Fill in a unique bucket name (hint: shopsmart-logs-<YOURNAME>)
 }

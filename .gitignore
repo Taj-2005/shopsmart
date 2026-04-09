@@ -142,3 +142,14 @@ docker-compose.override.yml
 *.tgz
 *.bak
 *.tmp
+
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Optional
+terraform.tfvars
+*.tfvars

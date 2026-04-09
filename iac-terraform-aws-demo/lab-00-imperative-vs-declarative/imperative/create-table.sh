@@ -16,7 +16,7 @@
 # STUDENTS: Replace the value below with a unique table name.
 # Example: shopsmart-products-lab00-jd-8294
 # ---------------------------------------------------------------------------
-TABLE_NAME="shopsmart-products-lab00-monapril6-2026"
+TABLE_NAME="shopsmart-products-lab00-thuapril9-2026"
 
 # ---------------------------------------------------------------------------
 # Step 2: Set the AWS region.

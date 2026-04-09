@@ -37,11 +37,12 @@ resource "random_id" "suffix" {
 # and team owns it.
 # ----------------------------------------------------
 resource "aws_s3_bucket" "shopsmart_uploads" {
-  bucket = "shopsmart-uploads-${random_id.suffix.hex}"
+  bucket = "shopsmart-uploads-v2-${random_id.suffix.hex}"
 
   tags = {
     Environment = "lab"
     Team        = "platform"
+    ManagedBy   = "terraform"
   }
 }
 
